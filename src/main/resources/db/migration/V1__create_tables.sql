@@ -1,22 +1,24 @@
+-- 1. Tabela Principal
 CREATE TABLE tb_print_ident (
-    -- UUID como chave primária
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    
-    -- Colunas obrigatórias e textos
-    content VARCHAR(255) NOT NULL,
     quantity INTEGER NOT NULL,
     reason TEXT,
-    
-    -- Boolean e Enums (armazenados como String via @Enumerated)
     is_urgent BOOLEAN NOT NULL DEFAULT FALSE,
     status VARCHAR(50) NOT NULL DEFAULT 'NOT_STARTED',
-    
-    -- Operador e Auditoria
     operator_number VARCHAR(100),
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    -- Adicionado DEFAULT aqui:
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITHOUT TIME ZONE
 );
 
--- Índices para otimizar a ordenação solicitada no Controller
-CREATE INDEX idx_tb_print_ident_urgency_date ON tb_print_ident (is_urgent DESC, created_at DESC);
-CREATE INDEX idx_tb_print_ident_operator ON tb_print_ident (operator_number);
+-- 2. Tabela de Conteúdos (Array de Strings)
+CREATE TABLE tb_print_ident_content (
+    print_ident_id UUID NOT NULL,
+    content_item TEXT NOT NULL,
+    CONSTRAINT fk_print_ident FOREIGN KEY (print_ident_id) 
+        REFERENCES tb_print_ident (id) ON DELETE CASCADE
+);
+
+-- Índices para performance
+CREATE INDEX idx_tb_print_ident_urgency ON tb_print_ident (is_urgent DESC, created_at DESC);
+CREATE INDEX idx_content_parent_id ON tb_print_ident_content (print_ident_id);

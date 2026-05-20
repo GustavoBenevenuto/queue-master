@@ -1,21 +1,19 @@
 package com.benevenuto.ident.entity;
 
+import com.benevenuto.ident.enums.PrintIdentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.benevenuto.ident.enums.PrintIdentStatus;
-
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "tb_print_ident")
 @Data
-@EntityListeners(AuditingEntityListener.class) // Habilita o preenchimento automático de datas
 public class PrintIdent {
 
     @Id
@@ -23,8 +21,14 @@ public class PrintIdent {
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(nullable = false)
-    private String content;
+    // Configuração da segunda tabela (tb_print_ident_content)
+    @ElementCollection
+    @CollectionTable(
+        name = "tb_print_ident_content", 
+        joinColumns = @JoinColumn(name = "print_ident_id")
+    )
+    @Column(name = "content_item")
+    private List<String> content;
 
     @Column(nullable = false)
     private Integer quantity;
@@ -43,7 +47,7 @@ public class PrintIdent {
     private String operatorNumber;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
