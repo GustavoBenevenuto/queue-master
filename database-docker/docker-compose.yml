@@ -1,0 +1,24 @@
+# Define a versão do Docker Compose que estamos usando. Versão 3 é compatível com a maioria dos recursos modernos.
+version: '3'
+
+services:
+  # Define um serviço chamado "local-postgres-compose". Cada serviço é um container que será executado.
+  local-postgres-compose:
+    image: postgres:16 # Define a imagem do Docker que será usada. Aqui estamos usando PostgreSQL versão 16 oficial.
+    environment:
+      POSTGRES_DB: ident_db # Nome do banco de dados que será criado automaticamente no container.
+      POSTGRES_USER: postgres # Usuário padrão do banco.
+      POSTGRES_PASSWORD: postgres # Senha do usuário padrão do banco.
+    ports:
+      - "5432:5432" # Mapeia a porta 5432 do container para a porta 5432 do host. Permite que aplicações do computador acessem o PostgreSQL localmente.
+    volumes:
+      # Cria um volume persistente:
+      # ./postgres-data (pasta do host) será usado para armazenar os dados do PostgreSQL.
+      # Isso garante que os dados não sejam perdidos quando o container for reiniciado.
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - postgres-compose-network # Conecta o container à rede definida abaixo. Isso permite comunicação entre containers dentro da mesma rede.
+
+networks:
+  postgres-compose-network:
+    driver: bridge # Define uma rede do tipo bridge para comunicação interna entre containers. Permite que outros containers conectados a esta rede se comuniquem entre si.

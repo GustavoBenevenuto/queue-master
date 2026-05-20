@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.benevenuto</groupId>
+	<artifactId>ident</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name/>
+	<description/>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	
+	<!-- Dependências necessárias para rodar e compilar o projeto -->
+	<dependencies>
+
+		<!-- ======================= SPRING BOOT - Módulos Principais ======================= -->
+		<!-- Starter para aplicações Web (Tomcat embutido, Spring MVC, Jackson 
+			JSON) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Starter para integração com JPA/Hibernate -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- Starter para segurança (autenticação e autorização) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- Validações de dados com Bean Validation (javax.validation / jakarta.validation) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<!-- Ferramenta para facilitar desenvolvimento (reload automático, hot 
+			swap) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- ======================= BANCO DE DADOS ======================= -->
+		<!-- Driver JDBC para PostgreSQL -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.6.0</version>
+		</dependency>
+
+		<!-- Banco de dados em memória para testes e desenvolvimento -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Ferramenta de migração de banco de dados (controle de versão do schema) -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+
+		<!-- ======================= AUTENTICAÇÃO / JWT ======================= -->
+		<!-- Biblioteca para criação e validação de tokens JWT -->
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.5.0</version>
+		</dependency>
+
+		<!-- ======================= UTILITÁRIOS ======================= -->
+		<!-- Lombok: reduz boilerplate (getters, setters, construtores automáticos) -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		
+		<!-- MapStruct: gera automaticamente código para mapear DTO <-> Entity -->
+		<dependency>
+		    <groupId>org.mapstruct</groupId>
+		    <artifactId>mapstruct</artifactId>
+		    <version>1.5.5.Final</version>
+		</dependency>
+		
+		<!-- MapStruct Processor: responsável por gerar o código em tempo de compilação -->
+		<dependency>
+		    <groupId>org.mapstruct</groupId>
+		    <artifactId>mapstruct-processor</artifactId>
+		    <version>1.5.5.Final</version>
+		    <scope>provided</scope> <!-- não vai para o build final -->
+		</dependency>
+
+		<!-- ======================= TESTES ======================= -->
+		<!-- Starter de testes do Spring Boot (JUnit, AssertJ, Mockito) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Testes específicos para segurança -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<!-- Configurações de build -->
+	<build>
+		<plugins>
+			<!-- Plugin do Spring Boot para empacotar e rodar a aplicação -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<!-- Exclui Lombok do pacote final (não necessário em runtime) -->
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<!-- Plugin para configuração de encoding e tratamento de resources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<nonFilteredFileExtensions>
+						<!-- Arquivos .properties não devem ser alterados durante o build -->
+						<nonFilteredFileExtension>properties</nonFilteredFileExtension>
+					</nonFilteredFileExtensions>
+				</configuration>
+			</plugin>
+			
+			<!-- Plugin para compilação Java + annotation processing (MapStruct + Lombok) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+	
+					<!-- Processadores de anotação -->
+					<annotationProcessorPaths>
+	
+						<!-- MapStruct: gera os mapeamentos automaticamente -->
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>1.5.5.Final</version>
+						</path>
+	
+						<!-- Lombok: necessário para MapStruct reconhecer getters/setters -->
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.32</version>
+						</path>
+	
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			
+			<!-- CHECKSTYLE garante que o código siga um padrão consistente de estilo (nomes de classes, variáveis, imports, tamanho de linha etc) -->
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-checkstyle-plugin</artifactId>
+			    <version>3.4.0</version>
+			
+			    <configuration>
+			        <configLocation>checkstyle.xml</configLocation>
+			        <encoding>UTF-8</encoding>
+			        <consoleOutput>true</consoleOutput>
+			        <failsOnError>true</failsOnError>
+			    </configuration>
+			
+			    <executions>
+			        <execution>
+			            <phase>verify</phase>
+			            <goals>
+			                <goal>check</goal>
+			            </goals>
+			        </execution>
+			    </executions>
+			</plugin>
+			
+			<!-- SpotBugs analisa o bytecode da aplicacao para encontrar possiveis bugs antes de rodar em produçao. Possível NullPointerException, Logica incorreta... -->
+			<plugin>
+			    <groupId>com.github.spotbugs</groupId>
+			    <artifactId>spotbugs-maven-plugin</artifactId>
+			    <version>4.8.6.4</version>
+			    
+			    <!-- Configurações do SpotBugs -->
+			    <configuration>
+			        <!-- nível de analise: Low | Medium | High -->
+			        <effort>Max</effort>
+			
+			        <!-- sensibilidade: Low (mais regras), Medium, High (menos regras) -->
+			        <threshold>Low</threshold>
+			
+			        <!-- gera relatório no console -->
+			        <xmlOutput>true</xmlOutput>
+			    </configuration>
+			
+			    <executions>
+			        <execution>
+			            <!-- Executa na fase de validação final -->
+			            <phase>verify</phase>
+			            <goals>
+			                <goal>check</goal>
+			            </goals>
+			        </execution>
+			    </executions>
+			</plugin>
+			
+		</plugins>
+	</build>
+
+</project>
