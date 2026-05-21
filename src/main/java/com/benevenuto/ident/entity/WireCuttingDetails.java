@@ -3,6 +3,8 @@ package com.benevenuto.ident.entity;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -25,6 +27,7 @@ public class WireCuttingDetails {
     @Id
     private UUID id;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "order_queue_id", nullable = false)
     private OrderQueue orderQueue;
