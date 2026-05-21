@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.benevenuto.ident.entity.OrderQueue;
@@ -15,15 +17,42 @@ public interface OrderQueueRepository extends JpaRepository<OrderQueue, UUID> {
 
     /**
      * O "Coração" da Fila por Estação:
-     * Filtra por STATUS (ex: pending) e TIPO (ex: wire_cutting).
-     * Ordena por Urgência (TRUE primeiro) e depois por Data de Criação (mais antigos primeiro).
+     * Agora utiliza JOINs para buscar a urgência dentro dos detalhes específicos.
+     * A lógica ordena: Urgentes (TRUE) primeiro, depois por data de criação.
      */
-    List<OrderQueue> findByStatusAndTypeOrderByIsUrgentDescCreatedAtAsc(OrderStatus status, RequestType type);
+    @Query("SELECT o FROM OrderQueue o " +
+           "LEFT JOIN PrintingDetails p ON o.id = p.orderQueue.id " +
+           "LEFT JOIN WireCuttingDetails w ON o.id = w.orderQueue.id " +
+           "LEFT JOIN StockWithdrawalDetails s ON o.id = s.orderQueue.id " +
+           "WHERE o.status = :status AND o.type = :type " +
+           "ORDER BY " +
+           "  CASE " +
+           "    WHEN o.type = 'identification_printing' THEN p.isUrgent " +
+           "    WHEN o.type = 'wire_cutting' THEN w.isUrgent " +
+           "    WHEN o.type = 'stock_withdrawal' THEN s.isUrgent " +
+           "    ELSE false " +
+           "  END DESC, o.createdAt ASC")
+    List<OrderQueue> findByStatusAndTypePrioritized(
+        @Param("status") OrderStatus status, 
+        @Param("type") RequestType type
+    );
 
-    // Busca geral por tipo (independente de status) ordenado por prioridade
-    List<OrderQueue> findByTypeOrderByIsUrgentDescCreatedAtAsc(RequestType type);
+    // Busca geral por tipo com a mesma lógica de prioridade
+    @Query("SELECT o FROM OrderQueue o " +
+           "LEFT JOIN PrintingDetails p ON o.id = p.orderQueue.id " +
+           "LEFT JOIN WireCuttingDetails w ON o.id = w.orderQueue.id " +
+           "LEFT JOIN StockWithdrawalDetails s ON o.id = s.orderQueue.id " +
+           "WHERE o.type = :type " +
+           "ORDER BY " +
+           "  CASE " +
+           "    WHEN o.type = 'identification_printing' THEN p.isUrgent " +
+           "    WHEN o.type = 'wire_cutting' THEN w.isUrgent " +
+           "    WHEN o.type = 'stock_withdrawal' THEN s.isUrgent " +
+           "    ELSE false " +
+           "  END DESC, o.createdAt ASC")
+    List<OrderQueue> findByTypePrioritized(@Param("type") RequestType type);
 
-    // Busca pedidos por número da PW
+    // Busca pedidos por número da PW (Simples, sem necessidade de Join)
     List<OrderQueue> findByPwNumber(String pwNumber);
 
     // Conta quantos pedidos de um tipo específico estão na fila

@@ -54,6 +54,7 @@ public class CreateOrderUseCase {
             .orderQueue(queue)
             .printText(item.getPrintText())
             .quantity(item.getQuantity())
+            .isUrgent(item.getIsUrgent())
             .reason(item.getReason())
             .build());
     }
@@ -65,6 +66,7 @@ public class CreateOrderUseCase {
             .orderQueue(queue)
             .wireName(item.getWireName())
             .quantity(item.getQuantity())
+            .isUrgent(item.getIsUrgent())
             .lengthMm(item.getLengthMm())
             .build());
     }
@@ -76,6 +78,7 @@ public class CreateOrderUseCase {
             .orderQueue(queue)
             .itemName(item.getItemName())
             .quantity(item.getQuantity())
+            .isUrgent(item.getIsUrgent())
             .reason(item.getReason())
             .build());
     }
@@ -86,7 +89,6 @@ public class CreateOrderUseCase {
             .pwNumber(dto.getPwNumber())
             .operatorNumber(dto.getOperatorNumber())
             .type(type)
-            .isUrgent(dto.getIsUrgent())
             .status(OrderStatus.pending)
             .build());
     }

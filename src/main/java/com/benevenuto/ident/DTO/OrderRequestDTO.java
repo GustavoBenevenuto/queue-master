@@ -9,7 +9,6 @@ import lombok.Data;
 public class OrderRequestDTO {
     private String pwNumber;
     private String operatorNumber;
-    private Boolean isUrgent;
     private List<PrintingItemDTO> printing;
     private List<WireItemDTO> wireCutting;
     private List<StockItemDTO> stockWithdrawal;
@@ -18,17 +17,20 @@ public class OrderRequestDTO {
         private String printText;
         private Integer quantity;
         private String reason;
+        private Boolean isUrgent;
     }
 
     @Data public static class WireItemDTO {
         private String wireName;
         private Integer quantity;
         private BigDecimal lengthMm;
+        private Boolean isUrgent;
     }
 
     @Data public static class StockItemDTO {
         private String itemName;
         private Integer quantity;
         private String reason;
+        private Boolean isUrgent;
     }
 }

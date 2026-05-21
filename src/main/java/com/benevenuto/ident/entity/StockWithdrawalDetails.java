@@ -34,6 +34,9 @@ public class StockWithdrawalDetails {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Column(name = "is_urgent")
+    private Boolean isUrgent = false;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String reason;
 }

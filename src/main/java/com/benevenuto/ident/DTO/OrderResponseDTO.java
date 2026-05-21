@@ -25,7 +25,6 @@ public class OrderResponseDTO {
     private String operatorNumber;
     private RequestType type;
     private OrderStatus status;
-    private Boolean isUrgent;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime createdAt;

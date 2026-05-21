@@ -35,6 +35,9 @@ public class WireCuttingDetails {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Column(name = "is_urgent")
+    private Boolean isUrgent = false;
+
     @Column(name = "length_mm", nullable = false, precision = 10, scale = 2)
     private BigDecimal lengthMm;
 }

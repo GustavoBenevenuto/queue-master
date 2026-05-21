@@ -45,9 +45,6 @@ public class OrderQueue {
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.pending;
 
-    @Column(name = "is_urgent")
-    private Boolean isUrgent = false;
-
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
