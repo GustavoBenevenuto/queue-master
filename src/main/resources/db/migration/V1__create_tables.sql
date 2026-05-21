@@ -1,24 +1,38 @@
--- 1. Tabela Principal
-CREATE TABLE tb_print_ident (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    quantity INTEGER NOT NULL,
-    reason TEXT,
-    is_urgent BOOLEAN NOT NULL DEFAULT FALSE,
-    status VARCHAR(50) NOT NULL DEFAULT 'NOT_STARTED',
-    operator_number VARCHAR(100),
-    -- Adicionado DEFAULT aqui:
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITHOUT TIME ZONE
+CREATE TABLE order_queue (
+    id UUID PRIMARY KEY,
+    pw_number VARCHAR(50) NOT NULL,
+    operator_number VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL, -- Removido ENUM, agora String
+    type VARCHAR(50) NOT NULL,   -- Removido ENUM, agora String
+    is_urgent BOOLEAN DEFAULT FALSE,
+    -- Registra o momento exato com o fuso horário (UTC no banco por padrão)
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
 );
 
--- 2. Tabela de Conteúdos (Array de Strings)
-CREATE TABLE tb_print_ident_content (
-    print_ident_id UUID NOT NULL,
-    content_item TEXT NOT NULL,
-    CONSTRAINT fk_print_ident FOREIGN KEY (print_ident_id) 
-        REFERENCES tb_print_ident (id) ON DELETE CASCADE
+-- Índice para busca rápida de pedidos pendentes e urgentes na fila
+CREATE INDEX idx_order_queue_workflow ON order_queue(status, is_urgent, created_at);
+
+CREATE TABLE printing_details (
+    id UUID PRIMARY KEY,
+    order_queue_id UUID NOT NULL REFERENCES order_queue(id) ON DELETE CASCADE,
+    print_text TEXT NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    reason TEXT NOT NULL
 );
 
--- Índices para performance
-CREATE INDEX idx_tb_print_ident_urgency ON tb_print_ident (is_urgent DESC, created_at DESC);
-CREATE INDEX idx_content_parent_id ON tb_print_ident_content (print_ident_id);
+CREATE TABLE wire_cutting_details (
+    id UUID PRIMARY KEY,
+    order_queue_id UUID NOT NULL REFERENCES order_queue(id) ON DELETE CASCADE,
+    wire_name VARCHAR(100) NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    length_mm DECIMAL(10, 2) NOT NULL CHECK (length_mm > 0)
+);
+
+CREATE TABLE stock_withdrawal_details (
+    id UUID PRIMARY KEY,
+    order_queue_id UUID NOT NULL REFERENCES order_queue(id) ON DELETE CASCADE,
+    item_name VARCHAR(100) NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    reason TEXT NOT NULL
+);
