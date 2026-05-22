@@ -1,45 +1,45 @@
-package com.benevenuto.ident.useCase;
+package com.benevenuto.ident.application.order_queue;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.benevenuto.ident.DTO.OrderResponseDTO;
-import com.benevenuto.ident.entity.OrderQueue;
-import com.benevenuto.ident.entity.PrintingDetails;
-import com.benevenuto.ident.entity.StockWithdrawalDetails;
-import com.benevenuto.ident.entity.WireCuttingDetails;
+import com.benevenuto.ident.domain.order_queue.entity.OrderQueue;
+import com.benevenuto.ident.domain.order_queue.entity.PrintingDetails;
+import com.benevenuto.ident.domain.order_queue.entity.StockWithdrawalDetails;
+import com.benevenuto.ident.domain.order_queue.entity.WireCuttingDetails;
+import com.benevenuto.ident.domain.order_queue.repository.IOrderQueueRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IPrintingDetailsRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IWireCuttingDetailsRepository;
 import com.benevenuto.ident.enums.OrderStatus;
 import com.benevenuto.ident.enums.RequestType;
-import com.benevenuto.ident.repository.OrderQueueRepository;
-import com.benevenuto.ident.repository.PrintingDetailsRepository;
-import com.benevenuto.ident.repository.StockWithdrawalDetailsRepository;
-import com.benevenuto.ident.repository.WireCuttingDetailsRepository;
 
-@Service
 public class GetQueueByStationUseCase {
 
-    @Autowired
-    private OrderQueueRepository queueRepository;
-    
-    @Autowired
-    private PrintingDetailsRepository printingRepository;
-    
-    @Autowired
-    private WireCuttingDetailsRepository wireRepository;
-    
-    @Autowired
-    private StockWithdrawalDetailsRepository stockRepository;
+    private final IOrderQueueRepository queueRepository;
+    private final IPrintingDetailsRepository printingRepository;
+    private final IWireCuttingDetailsRepository wireRepository;
+    private final IStockWithdrawalDetailsRepository stockRepository;
+
+    // Construtor único para injeção de dependência (Clean IoC)
+    public GetQueueByStationUseCase(
+        IOrderQueueRepository queueRepository,
+        IPrintingDetailsRepository printingRepository,
+        IWireCuttingDetailsRepository wireRepository,
+        IStockWithdrawalDetailsRepository stockRepository
+    ) {
+        this.queueRepository = queueRepository;
+        this.printingRepository = printingRepository;
+        this.wireRepository = wireRepository;
+        this.stockRepository = stockRepository;
+    }
 
     public List<OrderResponseDTO> execute(RequestType type, OrderStatus status) {
-        // 1. Chamada corrigida: Usando o método com @Query que criamos no Repository
-        // Este método já retorna os dados ordenados por Urgência e Data direto do SQL
+        // O repositório de domínio agora fornece o contrato para a busca priorizada
         List<OrderQueue> orders = queueRepository.findByStatusAndTypePrioritized(status, type);
 
-        // 2. Mapeia para o DTO
         return orders.stream().map(order -> {
             Object details = findDetails(order.getId(), order.getType());
             
@@ -53,8 +53,6 @@ public class GetQueueByStationUseCase {
                 .details(details)
                 .build();
         }).collect(Collectors.toList());
-        
-        // Removido o .sorted() manual, pois o SQL já cuidou disso via JOIN
     }
 
     private Object findDetails(UUID orderId, RequestType type) {
@@ -65,6 +63,8 @@ public class GetQueueByStationUseCase {
         };
     }
 
+    // Nota: O método extractUrgency foi mantido caso você precise dele para lógica extra, 
+    // embora a ordenação já venha do SQL.
     private boolean extractUrgency(Object details) {
         if (details instanceof PrintingDetails d) return d.getIsUrgent();
         if (details instanceof WireCuttingDetails d) return d.getIsUrgent();

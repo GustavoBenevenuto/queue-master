@@ -1,4 +1,4 @@
-package com.benevenuto.ident.entity;
+package com.benevenuto.ident.domain.order_queue.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -1,0 +1,47 @@
+package com.benevenuto.ident.config.order_queue;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.benevenuto.ident.application.order_queue.CreateOrderUseCase;
+import com.benevenuto.ident.application.order_queue.DeleteOrderUseCase;
+import com.benevenuto.ident.application.order_queue.GetQueueByStationUseCase;
+import com.benevenuto.ident.application.order_queue.UpdateOrderStatusUseCase;
+import com.benevenuto.ident.domain.order_queue.repository.IOrderQueueRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IPrintingDetailsRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IWireCuttingDetailsRepository;
+
+@Configuration
+public class OrderQueueConfig {
+
+    @Bean
+    public CreateOrderUseCase createOrderUseCase(
+        IOrderQueueRepository queueRepo,
+        IPrintingDetailsRepository printRepo,
+        IWireCuttingDetailsRepository wireRepo,
+        IStockWithdrawalDetailsRepository stockRepo
+    ) {
+        return new CreateOrderUseCase(queueRepo, printRepo, wireRepo, stockRepo);
+    }
+    
+    @Bean
+    public DeleteOrderUseCase deleteOrderUseCase(IOrderQueueRepository queueRepo) {
+        return new DeleteOrderUseCase(queueRepo);
+    }
+
+    @Bean
+    public GetQueueByStationUseCase getQueueByStationUseCase(
+        IOrderQueueRepository queueRepo,
+        IPrintingDetailsRepository printRepo,
+        IWireCuttingDetailsRepository wireRepo,
+        IStockWithdrawalDetailsRepository stockRepo
+    ) {
+        return new GetQueueByStationUseCase(queueRepo, printRepo, wireRepo, stockRepo);
+    }
+
+    @Bean
+    public UpdateOrderStatusUseCase updateOrderStatusUseCase(IOrderQueueRepository queueRepo) {
+        return new UpdateOrderStatusUseCase(queueRepo);
+    }
+}

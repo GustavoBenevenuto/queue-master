@@ -1,39 +1,42 @@
-package com.benevenuto.ident.useCase;
+package com.benevenuto.ident.application.order_queue;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.benevenuto.ident.DTO.OrderRequestDTO;
-import com.benevenuto.ident.entity.OrderQueue;
-import com.benevenuto.ident.entity.PrintingDetails;
-import com.benevenuto.ident.entity.StockWithdrawalDetails;
-import com.benevenuto.ident.entity.WireCuttingDetails;
+import com.benevenuto.ident.domain.order_queue.entity.OrderQueue;
+import com.benevenuto.ident.domain.order_queue.entity.PrintingDetails;
+import com.benevenuto.ident.domain.order_queue.entity.StockWithdrawalDetails;
+import com.benevenuto.ident.domain.order_queue.entity.WireCuttingDetails;
+import com.benevenuto.ident.domain.order_queue.repository.IOrderQueueRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IPrintingDetailsRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IWireCuttingDetailsRepository;
 import com.benevenuto.ident.enums.OrderStatus;
 import com.benevenuto.ident.enums.RequestType;
-import com.benevenuto.ident.repository.OrderQueueRepository;
-import com.benevenuto.ident.repository.PrintingDetailsRepository;
-import com.benevenuto.ident.repository.StockWithdrawalDetailsRepository;
-import com.benevenuto.ident.repository.WireCuttingDetailsRepository;
 
 import jakarta.transaction.Transactional;
 
-@Service
 public class CreateOrderUseCase {
 
-    @Autowired
-    private OrderQueueRepository queueRepository;
-    
-    @Autowired
-    private PrintingDetailsRepository printingRepository;
-    
-    @Autowired
-    private WireCuttingDetailsRepository wireRepository;
-    
-    @Autowired
-    private StockWithdrawalDetailsRepository stockRepository;
+    private final IOrderQueueRepository queueRepository;
+    private final IPrintingDetailsRepository printingRepository;
+    private final IWireCuttingDetailsRepository wireRepository;
+    private final IStockWithdrawalDetailsRepository stockRepository;
+
+    // Injeção via construtor de todas as interfaces de domínio
+    // Sem @Autowired, permitindo injeção manual ou via container
+    public CreateOrderUseCase(
+        IOrderQueueRepository queueRepository,
+        IPrintingDetailsRepository printingRepository,
+        IWireCuttingDetailsRepository wireRepository,
+        IStockWithdrawalDetailsRepository stockRepository
+    ) {
+        this.queueRepository = queueRepository;
+        this.printingRepository = printingRepository;
+        this.wireRepository = wireRepository;
+        this.stockRepository = stockRepository;
+    }
 
     @Transactional
     public void execute(OrderRequestDTO dto) {

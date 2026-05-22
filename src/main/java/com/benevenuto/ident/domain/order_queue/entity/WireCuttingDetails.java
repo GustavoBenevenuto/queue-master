@@ -1,5 +1,6 @@
-package com.benevenuto.ident.entity;
+package com.benevenuto.ident.domain.order_queue.entity;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,12 +17,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "stock_withdrawal_details")
+@Table(name = "wire_cutting_details")
 @Data
 @Builder // Habilita o StockWithdrawalDetails.builder()
 @NoArgsConstructor // Necessário para o Hibernate
 @AllArgsConstructor // Necessário para o Builder funcionar
-public class StockWithdrawalDetails {
+public class WireCuttingDetails {
 
     @Id
     private UUID id;
@@ -31,8 +32,8 @@ public class StockWithdrawalDetails {
     @JoinColumn(name = "order_queue_id", nullable = false)
     private OrderQueue orderQueue;
 
-    @Column(name = "item_name", nullable = false, length = 100)
-    private String itemName;
+    @Column(name = "wire_name", nullable = false, length = 100)
+    private String wireName;
 
     @Column(nullable = false)
     private Integer quantity;
@@ -40,6 +41,6 @@ public class StockWithdrawalDetails {
     @Column(name = "is_urgent")
     private Boolean isUrgent = false;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String reason;
+    @Column(name = "length_mm", nullable = false, precision = 10, scale = 2)
+    private BigDecimal lengthMm;
 }

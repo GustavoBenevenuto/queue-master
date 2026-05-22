@@ -1,20 +1,19 @@
-package com.benevenuto.ident.useCase;
+package com.benevenuto.ident.application.order_queue;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.benevenuto.ident.repository.OrderQueueRepository;
+import com.benevenuto.ident.domain.order_queue.repository.IOrderQueueRepository;
 
 import jakarta.transaction.Transactional;
 
-@Service
 public class DeleteOrderUseCase {
 
-    @Autowired
-    private OrderQueueRepository repository;
+	private final IOrderQueueRepository repository;
 
+	public DeleteOrderUseCase(IOrderQueueRepository repository) {
+		this.repository = repository;
+	}
+	
     @Transactional
     public void execute(UUID id) {
         if (!repository.existsById(id)) {
