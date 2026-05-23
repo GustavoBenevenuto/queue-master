@@ -6,7 +6,7 @@ services:
   local-postgres-compose:
     image: postgres:16 # Define a imagem do Docker que será usada. Aqui estamos usando PostgreSQL versão 16 oficial.
     environment:
-      POSTGRES_DB: ident_db # Nome do banco de dados que será criado automaticamente no container.
+      POSTGRES_DB: queue_master_db # Nome do banco de dados que será criado automaticamente no container.
       POSTGRES_USER: postgres # Usuário padrão do banco.
       POSTGRES_PASSWORD: postgres # Senha do usuário padrão do banco.
     ports:
