@@ -9,7 +9,9 @@ import com.benevenuto.queue_master.domain.order_queue.entity.OrderQueue;
 import com.benevenuto.queue_master.domain.order_queue.repository.IOrderQueueRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
 import com.benevenuto.queue_master.enums.RequestType;
+import com.benevenuto.queue_master.infra.common.repository.jpa.interfaces.BaseRepositoryJpaImpl;
 import com.benevenuto.queue_master.infra.order_queue.repository.jpa.interfaces.IOrderQueueJpaRepository;
+
 
 @Component
 public class OrderQueueRepositoryJpaImpl extends BaseRepositoryJpaImpl<OrderQueue, UUID, IOrderQueueJpaRepository>

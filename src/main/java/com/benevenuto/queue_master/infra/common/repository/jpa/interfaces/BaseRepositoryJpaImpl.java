@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.infra.order_queue.repository.jpa;
+package com.benevenuto.queue_master.infra.common.repository.jpa.interfaces;
 
 import java.util.Optional;
 

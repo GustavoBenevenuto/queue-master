@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
 import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
+import com.benevenuto.queue_master.infra.common.repository.jpa.interfaces.BaseRepositoryJpaImpl;
 import com.benevenuto.queue_master.infra.order_queue.repository.jpa.interfaces.IWireCuttingDetailsJpaRepository;
 
 @Component
