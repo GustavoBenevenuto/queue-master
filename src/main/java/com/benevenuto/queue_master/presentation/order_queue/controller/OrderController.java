@@ -17,7 +17,7 @@ import com.benevenuto.queue_master.enums.OrderStatus;
 import com.benevenuto.queue_master.enums.RequestType;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
 public class OrderController {
 
     private final CreateOrderUseCase createOrderUseCase;

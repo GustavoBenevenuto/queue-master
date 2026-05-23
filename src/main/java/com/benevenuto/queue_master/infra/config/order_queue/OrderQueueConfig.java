@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.config.order_queue;
+package com.benevenuto.queue_master.infra.config.order_queue;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

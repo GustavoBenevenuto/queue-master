@@ -62,13 +62,4 @@ public class GetQueueByStationUseCase {
             case stock_withdrawal -> stockRepository.findByOrderQueueId(orderId).orElse(null);
         };
     }
-
-    // Nota: O método extractUrgency foi mantido caso você precise dele para lógica extra, 
-    // embora a ordenação já venha do SQL.
-    private boolean extractUrgency(Object details) {
-        if (details instanceof PrintingDetails d) return d.getIsUrgent();
-        if (details instanceof WireCuttingDetails d) return d.getIsUrgent();
-        if (details instanceof StockWithdrawalDetails d) return d.getIsUrgent();
-        return false;
-    }
 }
