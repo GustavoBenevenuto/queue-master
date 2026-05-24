@@ -1,14 +1,19 @@
 package com.benevenuto.queue_master.domain.order_queue.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import com.benevenuto.queue_master.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,18 +23,19 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "printing_details")
 @Data
-@Builder // Habilita o StockWithdrawalDetails.builder()
-@NoArgsConstructor // Necessário para o Hibernate
-@AllArgsConstructor // Necessário para o Builder funcionar
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PrintingDetails {
 
     @Id
     private UUID id;
 
-    @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "order_queue_id", nullable = false)
-    private OrderQueue orderQueue;
+    @Column(name = "pw_number", nullable = false, length = 50)
+    private String pwNumber;
+
+    @Column(name = "operator_number", nullable = false, length = 50)
+    private String operatorNumber;
 
     @Column(name = "print_text", nullable = false, columnDefinition = "TEXT")
     private String printText;
@@ -42,4 +48,17 @@ public class PrintingDetails {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String reason;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status = OrderStatus.pending;
+
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }
