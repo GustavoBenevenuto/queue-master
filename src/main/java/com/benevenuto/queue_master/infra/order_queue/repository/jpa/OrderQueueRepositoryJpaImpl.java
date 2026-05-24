@@ -35,6 +35,11 @@ public class OrderQueueRepositoryJpaImpl extends BaseRepositoryJpaImpl<OrderQueu
 	public List<OrderQueue> findByPwNumber(String pwNumber) {
 		return repository.findByPwNumber(pwNumber);
 	}
+	
+	@Override
+	public List<OrderQueue> findByOperatorNumber(String operatorNumber) {
+	    return repository.findByOperatorNumberPrioritized(operatorNumber);
+	}
 
 	@Override
 	public long countByStatusAndType(OrderStatus status, RequestType type) {

@@ -25,6 +25,6 @@ public class DeleteOrderUseCase {
         repository.deleteById(id);
         
         // Devolve os dados da ordem que acabou de ser destruída
-        return new OrderDataNotificationDTO(order.getType(), order.getStatus());
+        return new OrderDataNotificationDTO(order.getType(), order.getStatus(), order.getOperatorNumber());
     }
 }

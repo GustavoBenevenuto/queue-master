@@ -1,23 +1,27 @@
 package com.benevenuto.queue_master.presentation.websocket;
 
-import com.benevenuto.queue_master.DTO.OrderResponseDTO;
-import com.benevenuto.queue_master.application.order_queue.GetQueueByStationUseCase;
-import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.enums.RequestType;
+import java.util.List;
+
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import com.benevenuto.queue_master.DTO.OrderResponseDTO;
+import com.benevenuto.queue_master.application.order_queue.GetOrdersByOperatorUseCase;
+import com.benevenuto.queue_master.application.order_queue.GetQueueByStationUseCase;
+import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.enums.RequestType;
 
 @Component
 public class QueueEventPublisher {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final GetQueueByStationUseCase getQueueByStationUseCase;
+    private final GetOrdersByOperatorUseCase getOrdersByOperatorUseCase;
 
-    public QueueEventPublisher(SimpMessagingTemplate messagingTemplate, GetQueueByStationUseCase getQueueByStationUseCase) {
+    public QueueEventPublisher(SimpMessagingTemplate messagingTemplate, GetQueueByStationUseCase getQueueByStationUseCase, GetOrdersByOperatorUseCase getOrdersByOperatorUseCase) {
         this.messagingTemplate = messagingTemplate;
         this.getQueueByStationUseCase = getQueueByStationUseCase;
+        this.getOrdersByOperatorUseCase = getOrdersByOperatorUseCase;
     }
 
     /**
@@ -32,5 +36,14 @@ public class QueueEventPublisher {
         String destination = String.format("/topic/queue/%s/%s", type.name(), status.name());
         
         messagingTemplate.convertAndSend(destination, updatedQueue);
+    }
+    
+    public void publishOperatorUpdate(String operatorNumber) {
+        // 1. Busca a lista atualizada de solicitações daquele operador específico
+        List<OrderResponseDTO> updatedOperatorOrders = getOrdersByOperatorUseCase.execute(operatorNumber);
+        
+        // 2. Envia para o tópico exclusivo dele. Ex: /topic/operator/OP-TESTE
+        String destination = "/topic/operator/" + operatorNumber;
+        messagingTemplate.convertAndSend(destination, updatedOperatorOrders);
     }
 }

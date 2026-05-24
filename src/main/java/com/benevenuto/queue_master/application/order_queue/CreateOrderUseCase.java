@@ -47,19 +47,19 @@ public class CreateOrderUseCase {
         Optional.ofNullable(dto.getPrinting()).ifPresent(list -> 
             list.forEach(item -> {
                 savePrinting(dto, item);
-                notifications.add(new OrderDataNotificationDTO(RequestType.identification_printing, OrderStatus.pending));
+                notifications.add(new OrderDataNotificationDTO(RequestType.identification_printing, OrderStatus.pending, dto.getOperatorNumber()));
             }));
         
         Optional.ofNullable(dto.getWireCutting()).ifPresent(list -> 
             list.forEach(item -> {
                 saveWire(dto, item);
-                notifications.add(new OrderDataNotificationDTO(RequestType.wire_cutting, OrderStatus.pending));
+                notifications.add(new OrderDataNotificationDTO(RequestType.wire_cutting, OrderStatus.pending, dto.getOperatorNumber()));
             }));
         
         Optional.ofNullable(dto.getStockWithdrawal()).ifPresent(list -> 
             list.forEach(item -> {
                 saveStock(dto, item);
-                notifications.add(new OrderDataNotificationDTO(RequestType.stock_withdrawal, OrderStatus.pending));
+                notifications.add(new OrderDataNotificationDTO(RequestType.stock_withdrawal, OrderStatus.pending, dto.getOperatorNumber()));
             }));
 
         // Retorna a lista contendo mapeado tudo o que de fato entrou no banco

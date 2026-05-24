@@ -11,5 +11,6 @@ public interface IOrderQueueRepository extends IBaseRepository<OrderQueue, UUID>
     List<OrderQueue> findByStatusAndTypePrioritized(OrderStatus status, RequestType type);
     List<OrderQueue> findByTypePrioritized(RequestType type);
     List<OrderQueue> findByPwNumber(String pwNumber);
-    long countByStatusAndType(OrderStatus status, RequestType type);    
+    long countByStatusAndType(OrderStatus status, RequestType type);
+    List<OrderQueue> findByOperatorNumber(String operatorNumber);
 }

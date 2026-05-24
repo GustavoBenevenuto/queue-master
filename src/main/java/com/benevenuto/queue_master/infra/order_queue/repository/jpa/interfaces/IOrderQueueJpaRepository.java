@@ -37,6 +37,18 @@ public interface IOrderQueueJpaRepository extends JpaRepository<OrderQueue, UUID
     List<OrderQueue> findByTypePrioritized(@Param("type") RequestType type);
 
     List<OrderQueue> findByPwNumber(String pwNumber);
+    
+    @Query("SELECT o FROM OrderQueue o " +
+    	       "LEFT JOIN PrintingDetails p ON o.id = p.orderQueue.id " +
+    	       "LEFT JOIN WireCuttingDetails w ON o.id = w.orderQueue.id " +
+    	       "LEFT JOIN StockWithdrawalDetails s ON o.id = s.orderQueue.id " +
+    	       "WHERE o.operatorNumber = :operatorNumber " +
+    	       "ORDER BY CASE " +
+    	       "  WHEN o.type = 'identification_printing' THEN p.isUrgent " +
+    	       "  WHEN o.type = 'wire_cutting' THEN w.isUrgent " +
+    	       "  WHEN o.type = 'stock_withdrawal' THEN s.isUrgent " +
+    	       "  ELSE false END DESC, o.createdAt DESC") // Traz as mais recentes primeiro dentro do grupo de prioridade
+    List<OrderQueue> findByOperatorNumberPrioritized(@Param("operatorNumber") String operatorNumber);
 
     long countByStatusAndType(OrderStatus status, RequestType type);
 }

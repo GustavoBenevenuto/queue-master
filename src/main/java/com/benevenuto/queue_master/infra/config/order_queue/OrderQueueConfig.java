@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.benevenuto.queue_master.application.order_queue.CreateOrderUseCase;
 import com.benevenuto.queue_master.application.order_queue.DeleteOrderUseCase;
+import com.benevenuto.queue_master.application.order_queue.GetOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.order_queue.GetQueueByStationUseCase;
 import com.benevenuto.queue_master.application.order_queue.UpdateOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.repository.IOrderQueueRepository;
@@ -38,6 +39,16 @@ public class OrderQueueConfig {
         IStockWithdrawalDetailsRepository stockRepo
     ) {
         return new GetQueueByStationUseCase(queueRepo, printRepo, wireRepo, stockRepo);
+    }
+
+    @Bean
+    public GetOrdersByOperatorUseCase getOrdersByOperatorUseCase(
+        IOrderQueueRepository queueRepo,
+        IPrintingDetailsRepository printRepo,
+        IWireCuttingDetailsRepository wireRepo,
+        IStockWithdrawalDetailsRepository stockRepo
+    ) {
+        return new GetOrdersByOperatorUseCase(queueRepo, printRepo, wireRepo, stockRepo);
     }
 
     @Bean
