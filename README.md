@@ -1,5 +1,5 @@
 🌐 Language:
-[English](./README.md) | [Portuguese](./README.pt-BR.md)
+[English](./README.md) | [Portuguese](./README.pt-br.md)
 
 # 🚀 Queue Master
 
