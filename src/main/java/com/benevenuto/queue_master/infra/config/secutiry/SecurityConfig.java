@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // 1. Rotas Públicas
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers("/ws-queue/**").permitAll()
 
                         // 2. Administração (Criação de usuários)
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")

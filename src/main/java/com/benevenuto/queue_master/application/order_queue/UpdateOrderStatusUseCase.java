@@ -2,6 +2,7 @@ package com.benevenuto.queue_master.application.order_queue;
 
 import java.util.UUID;
 
+import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.order_queue.entity.OrderQueue;
 import com.benevenuto.queue_master.domain.order_queue.repository.IOrderQueueRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
@@ -16,14 +17,17 @@ public class UpdateOrderStatusUseCase {
     private final IOrderQueueRepository repository;
 
     @Transactional
-    public void execute(UUID id, OrderStatus newStatus) {
-        // Agora utilizamos a interface de domínio IOrderQueueRepository
+    public OrderDataNotificationDTO execute(UUID id, OrderStatus newStatus) {
         OrderQueue order = repository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Order not found"));
         
-        order.setStatus(newStatus);
+        // Guardamos o status antigo antes de atualizar
+        OrderStatus oldStatus = order.getStatus();
         
-        // O método save aqui segue o contrato da interface de domínio
+        order.setStatus(newStatus);
         repository.save(order);
+        
+        // Retorna o tipo e o status antigo para o controller saber quem notificar
+        return new OrderDataNotificationDTO(order.getType(), oldStatus);
     }
 }

@@ -25,7 +25,7 @@ INSERT INTO "user" (
     created_at, 
     updated_at
 ) VALUES (
-    gen_random_uuid(), -- Gera o UUID automaticamente no Postgres
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'Administrator', 
     'admin@queuemaster.com', 
     1001, 

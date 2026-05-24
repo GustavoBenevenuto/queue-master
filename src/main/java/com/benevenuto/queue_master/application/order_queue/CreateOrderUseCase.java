@@ -1,9 +1,12 @@
 package com.benevenuto.queue_master.application.order_queue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.DTO.OrderRequestDTO;
+import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.order_queue.entity.OrderQueue;
 import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
@@ -24,8 +27,6 @@ public class CreateOrderUseCase {
     private final IWireCuttingDetailsRepository wireRepository;
     private final IStockWithdrawalDetailsRepository stockRepository;
 
-    // Injeção via construtor de todas as interfaces de domínio
-    // Sem @Autowired, permitindo injeção manual ou via container
     public CreateOrderUseCase(
         IOrderQueueRepository queueRepository,
         IPrintingDetailsRepository printingRepository,
@@ -39,15 +40,30 @@ public class CreateOrderUseCase {
     }
 
     @Transactional
-    public void execute(OrderRequestDTO dto) {
+    public List<OrderDataNotificationDTO> execute(OrderRequestDTO dto) {
+        // Lista que acumulará as notificações de tudo o que foi criado
+        List<OrderDataNotificationDTO> notifications = new ArrayList<>();
+
         Optional.ofNullable(dto.getPrinting()).ifPresent(list -> 
-            list.forEach(item -> savePrinting(dto, item)));
+            list.forEach(item -> {
+                savePrinting(dto, item);
+                notifications.add(new OrderDataNotificationDTO(RequestType.identification_printing, OrderStatus.pending));
+            }));
         
         Optional.ofNullable(dto.getWireCutting()).ifPresent(list -> 
-            list.forEach(item -> saveWire(dto, item)));
+            list.forEach(item -> {
+                saveWire(dto, item);
+                notifications.add(new OrderDataNotificationDTO(RequestType.wire_cutting, OrderStatus.pending));
+            }));
         
         Optional.ofNullable(dto.getStockWithdrawal()).ifPresent(list -> 
-            list.forEach(item -> saveStock(dto, item)));
+            list.forEach(item -> {
+                saveStock(dto, item);
+                notifications.add(new OrderDataNotificationDTO(RequestType.stock_withdrawal, OrderStatus.pending));
+            }));
+
+        // Retorna a lista contendo mapeado tudo o que de fato entrou no banco
+        return notifications;
     }
 
     private void savePrinting(OrderRequestDTO dto, OrderRequestDTO.PrintingItemDTO item) {
