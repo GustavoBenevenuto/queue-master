@@ -11,7 +11,4 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class PrintingOrderRequestDTO extends BaseOrderRequestDTO {
 	private String printText;
-    private Integer quantity;
-    private Boolean isUrgent;
-    private String reason;
 }

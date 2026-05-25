@@ -7,7 +7,9 @@ import java.util.UUID;
 
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.DTO.wire_cutting_details.WireCuttingOrderRequestDTO;
+import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
 import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
+import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
 import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
 import com.benevenuto.queue_master.enums.RequestType;
@@ -21,15 +23,15 @@ public class CreateWireCuttingOrderUseCase {
     private final IWireCuttingDetailsRepository wireRepository;
 
     @Transactional
-    public List<OrderDataNotificationDTO> execute(WireCuttingOrderRequestDTO dto) {
+    public List<OrderDataNotificationDTO> execute(List<WireCuttingDetails> dto) {
         List<OrderDataNotificationDTO> notifications = new ArrayList<>();
 
-        Optional.ofNullable(dto.getItems()).ifPresent(list -> 
+        Optional.ofNullable(dto).ifPresent(list -> 
             list.forEach(item -> {
                 wireRepository.save(WireCuttingDetails.builder()
                     .id(UUID.randomUUID())
-                    .pwNumber(dto.getPwNumber())
-                    .operatorNumber(dto.getOperatorNumber())
+                    .pwNumber(item.getPwNumber())
+                    .operatorNumber(item.getOperatorNumber())
                     .wireName(item.getWireName())
                     .quantity(item.getQuantity())
                     .isUrgent(item.getIsUrgent())
@@ -41,7 +43,7 @@ public class CreateWireCuttingOrderUseCase {
                 notifications.add(new OrderDataNotificationDTO(
                     RequestType.wire_cutting, 
                     OrderStatus.pending, 
-                    dto.getOperatorNumber()
+                    item.getOperatorNumber()
                 ));
             }));
 

@@ -6,8 +6,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.DTO.pritting_details.PrintingOrderRequestDTO;
 import com.benevenuto.queue_master.DTO.stock_withdrawal_details.StockWithdrawalOrderRequestDTO;
+import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
+import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
 import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
 import com.benevenuto.queue_master.enums.RequestType;
@@ -21,15 +24,15 @@ public class CreateStockWithdrawalOrderUseCase {
     private final IStockWithdrawalDetailsRepository stockRepository;
 
     @Transactional
-    public List<OrderDataNotificationDTO> execute(StockWithdrawalOrderRequestDTO dto) {
+    public List<OrderDataNotificationDTO> execute(List<StockWithdrawalDetails> dto) {
         List<OrderDataNotificationDTO> notifications = new ArrayList<>();
 
-        Optional.ofNullable(dto.getItems()).ifPresent(list -> 
+        Optional.ofNullable(dto).ifPresent(list -> 
             list.forEach(item -> {
                 stockRepository.save(StockWithdrawalDetails.builder()
                     .id(UUID.randomUUID())
-                    .pwNumber(dto.getPwNumber())
-                    .operatorNumber(dto.getOperatorNumber())
+                    .pwNumber(item.getPwNumber())
+                    .operatorNumber(item.getOperatorNumber())
                     .itemName(item.getItemName())
                     .quantity(item.getQuantity())
                     .isUrgent(item.getIsUrgent())
@@ -40,7 +43,7 @@ public class CreateStockWithdrawalOrderUseCase {
                 notifications.add(new OrderDataNotificationDTO(
                     RequestType.stock_withdrawal, 
                     OrderStatus.pending, 
-                    dto.getOperatorNumber()
+                    item.getOperatorNumber()
                 ));
             }));
 

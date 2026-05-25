@@ -39,8 +39,8 @@ public class WireCuttingDetailsController {
     private final QueueEventPublisher queueEventPublisher;
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody WireCuttingOrderRequestDTO dto) {
-        List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
+    public ResponseEntity<Void> create(@RequestBody List<WireCuttingDetails> wire, @RequestParam String opNumber) {
+        List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(wire);
 
         createdOrders.stream()
             .distinct()
@@ -48,7 +48,7 @@ public class WireCuttingDetailsController {
                 queueEventPublisher.publishQueueUpdate(notification.type(), notification.status())
             );
 
-        queueEventPublisher.publishOperatorUpdate(dto.getOperatorNumber());
+        queueEventPublisher.publishOperatorUpdate(opNumber);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     

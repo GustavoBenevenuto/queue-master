@@ -39,7 +39,7 @@ public class StockWithdrawalDetailsController {
     private final QueueEventPublisher queueEventPublisher;
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody StockWithdrawalOrderRequestDTO dto) {
+    public ResponseEntity<Void> create(@RequestBody List<StockWithdrawalDetails> dto, @RequestParam String opNumber) {
         List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
 
         createdOrders.stream()
@@ -48,7 +48,7 @@ public class StockWithdrawalDetailsController {
                 queueEventPublisher.publishQueueUpdate(notification.type(), notification.status())
             );
 
-        queueEventPublisher.publishOperatorUpdate(dto.getOperatorNumber());
+        queueEventPublisher.publishOperatorUpdate(opNumber);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     

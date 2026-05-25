@@ -10,4 +10,7 @@ import lombok.experimental.SuperBuilder;
 public abstract class BaseOrderRequestDTO {
     private String pwNumber;
     private String operatorNumber;
+    private Integer quantity;
+    private Boolean isUrgent;
+    private String reason;
 }
