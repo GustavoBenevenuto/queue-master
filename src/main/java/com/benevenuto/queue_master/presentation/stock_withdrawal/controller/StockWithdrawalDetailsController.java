@@ -1,11 +1,19 @@
-package com.benevenuto.queue_master.presentation.order_queue.controller;
+package com.benevenuto.queue_master.presentation.stock_withdrawal.controller;
 
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.CreateStockWithdrawalOrderUseCase;
@@ -15,7 +23,7 @@ import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStock
 import com.benevenuto.queue_master.application.stock_withdrawal_details.UpdateStockWithdrawalOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.presentation.websocket.QueueEventPublisher;
+import com.benevenuto.queue_master.presentation.stock_withdrawal.websocket.StockWithdrawalQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,17 +37,17 @@ public class StockWithdrawalDetailsController {
     private final GetStockWithdrawalOrdersByOperatorUseCase getByOperatorUseCase;
     private final GetStockWithdrawalOrdersUseCase getStockWithdrawalOrdersUseCase;
     private final UpdateStockWithdrawalOrderStatusUseCase updateStatusUseCase;
-    private final QueueEventPublisher queueEventPublisher;
+    private final StockWithdrawalQueueEventPublisher queueEventPublisher; // AJUSTADO: Publisher de Estoque
 
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody List<StockWithdrawalDetails> dto, @RequestParam String opNumber) {
         List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
 
-        // AJUSTADO: Dispara o evento combinado (Geral + Operador) para cada tipo criado
+        // AJUSTADO: Chamada direta sem RequestType
         createdOrders.stream()
             .distinct()
             .forEach(notification -> 
-                queueEventPublisher.publishQueueUpdate(notification.type(), notification.status(), opNumber)
+                queueEventPublisher.publishQueueUpdate(notification.status(), opNumber)
             );
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -62,8 +70,8 @@ public class StockWithdrawalDetailsController {
         
         OrderDataNotificationDTO oldOrderData = updateStatusUseCase.execute(id, status);
 
-        // AJUSTADO: Passa o status novo e o operatorNumber no mesmo evento unificado
-        queueEventPublisher.publishQueueUpdate(oldOrderData.type(), status, oldOrderData.operatorNumber());
+        // AJUSTADO: Chamada simplificada para o websocket específico
+        queueEventPublisher.publishQueueUpdate(status, oldOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }
@@ -72,8 +80,8 @@ public class StockWithdrawalDetailsController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         OrderDataNotificationDTO deletedOrderData = deleteUseCase.execute(id);
 
-        // AJUSTADO: Atualiza ambos os canais após a deleção
-        queueEventPublisher.publishQueueUpdate(deletedOrderData.type(), deletedOrderData.status(), deletedOrderData.operatorNumber());
+        // AJUSTADO: Chamada simplificada para o websocket específico
+        queueEventPublisher.publishQueueUpdate(deletedOrderData.status(), deletedOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }

@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.presentation.order_queue.controller;
+package com.benevenuto.queue_master.presentation.printing.controller;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +24,7 @@ import com.benevenuto.queue_master.application.printing_details.GetPrintingOrder
 import com.benevenuto.queue_master.application.printing_details.UpdatePrintingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.presentation.websocket.QueueEventPublisher;
+import com.benevenuto.queue_master.presentation.printing.websocket.PrintingQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,16 +38,17 @@ public class PrintingDetailsController {
     private final GetPrintingOrdersByOperatorUseCase getByOperatorUseCase;
     private final GetPrintingOrdersUseCase getPrintingOrdersUseCase;
     private final UpdatePrintingOrderStatusUseCase updateStatusUseCase;
-    private final QueueEventPublisher queueEventPublisher;
+    private final PrintingQueueEventPublisher queueEventPublisher; // AJUSTADO: Publisher de Impressão
 
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody List<PrintingOrderRequestDTO> dto, @RequestParam String opNumber) {
         List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
 
+        // AJUSTADO: Chamada direta sem RequestType
         createdOrders.stream()
             .distinct()
             .forEach(notification -> 
-                queueEventPublisher.publishQueueUpdate(notification.type(), notification.status(), opNumber)
+                queueEventPublisher.publishQueueUpdate(notification.status(), opNumber)
             );
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -70,7 +71,8 @@ public class PrintingDetailsController {
         
         OrderDataNotificationDTO oldOrderData = updateStatusUseCase.execute(id, status);
 
-        queueEventPublisher.publishQueueUpdate(oldOrderData.type(), status, oldOrderData.operatorNumber());
+        // AJUSTADO: Chamada simplificada para o websocket específico
+        queueEventPublisher.publishQueueUpdate(status, oldOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }
@@ -79,7 +81,8 @@ public class PrintingDetailsController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         OrderDataNotificationDTO deletedOrderData = deleteUseCase.execute(id);
 
-        queueEventPublisher.publishQueueUpdate(deletedOrderData.type(), deletedOrderData.status(), deletedOrderData.operatorNumber());
+        // AJUSTADO: Chamada simplificada para o websocket específico
+        queueEventPublisher.publishQueueUpdate(deletedOrderData.status(), deletedOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }

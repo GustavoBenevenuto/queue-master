@@ -1,9 +1,10 @@
 package com.benevenuto.queue_master.application.wire_cutting_details;
 
 import java.util.UUID;
+
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
-import com.benevenuto.queue_master.enums.RequestType;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,6 @@ public class DeleteWireCuttingOrderUseCase {
             .map(entity -> {
                 wireRepository.deleteById(id);
                 return new OrderDataNotificationDTO(
-                    RequestType.wire_cutting, 
                     entity.getStatus(), 
                     entity.getOperatorNumber()
                 );

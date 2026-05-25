@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.presentation.order_queue.controller;
+package com.benevenuto.queue_master.presentation.wire_cutting.controller;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +23,7 @@ import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCutti
 import com.benevenuto.queue_master.application.wire_cutting_details.UpdateWireCuttingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.presentation.websocket.QueueEventPublisher;
+import com.benevenuto.queue_master.presentation.wire_cutting.websocket.WireCuttingQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,16 +37,17 @@ public class WireCuttingDetailsController {
     private final GetWireCuttingOrdersByOperatorUseCase getByOperatorUseCase;
     private final GetWireCuttingOrdersUseCase getWireCuttingOrdersUseCase;
     private final UpdateWireCuttingOrderStatusUseCase updateStatusUseCase;
-    private final QueueEventPublisher queueEventPublisher;
+    private final WireCuttingQueueEventPublisher queueEventPublisher;
 
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody List<WireCuttingDetails> dto, @RequestParam String opNumber) {
         List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
 
+        // AJUSTADO: Chamada direta sem RequestType
         createdOrders.stream()
             .distinct()
             .forEach(notification -> 
-                queueEventPublisher.publishQueueUpdate(notification.type(), notification.status(), opNumber)
+                queueEventPublisher.publishQueueUpdate(notification.status(), opNumber)
             );
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -69,7 +70,8 @@ public class WireCuttingDetailsController {
         
         OrderDataNotificationDTO oldOrderData = updateStatusUseCase.execute(id, status);
 
-        queueEventPublisher.publishQueueUpdate(oldOrderData.type(), status, oldOrderData.operatorNumber());
+        // AJUSTADO: Chamada simplificada para o websocket específico
+        queueEventPublisher.publishQueueUpdate(status, oldOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }
@@ -78,7 +80,8 @@ public class WireCuttingDetailsController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         OrderDataNotificationDTO deletedOrderData = deleteUseCase.execute(id);
 
-        queueEventPublisher.publishQueueUpdate(deletedOrderData.type(), deletedOrderData.status(), deletedOrderData.operatorNumber());
+        // AJUSTADO: Chamada simplificada para o websocket específico
+        queueEventPublisher.publishQueueUpdate(deletedOrderData.status(), deletedOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }

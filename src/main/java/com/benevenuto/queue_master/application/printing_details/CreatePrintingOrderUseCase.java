@@ -10,7 +10,6 @@ import com.benevenuto.queue_master.DTO.pritting_details.PrintingOrderRequestDTO;
 import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.enums.RequestType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,6 @@ public class CreatePrintingOrderUseCase {
                     .build());
                 
                 notifications.add(new OrderDataNotificationDTO(
-                    RequestType.identification_printing, 
                     OrderStatus.pending, 
                     item.getOperatorNumber()
                 ));

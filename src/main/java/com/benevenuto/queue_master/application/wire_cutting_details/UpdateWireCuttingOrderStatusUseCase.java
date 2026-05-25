@@ -5,7 +5,6 @@ import java.util.UUID;
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.enums.RequestType;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -24,7 +23,6 @@ public class UpdateWireCuttingOrderStatusUseCase {
                 entity.setStatus(newStatus);
                 wireRepository.save(entity);
                 return new OrderDataNotificationDTO(
-                    RequestType.wire_cutting, 
                     oldStatus, 
                     entity.getOperatorNumber()
                 );

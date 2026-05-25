@@ -6,13 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.DTO.wire_cutting_details.WireCuttingOrderRequestDTO;
-import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
 import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
-import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
 import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.enums.RequestType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +37,6 @@ public class CreateWireCuttingOrderUseCase {
                     .build());
                 
                 notifications.add(new OrderDataNotificationDTO(
-                    RequestType.wire_cutting, 
                     OrderStatus.pending, 
                     item.getOperatorNumber()
                 ));

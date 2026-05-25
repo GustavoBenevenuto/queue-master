@@ -5,7 +5,6 @@ import java.util.UUID;
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.enums.RequestType;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -24,7 +23,6 @@ public class UpdatePrintingOrderStatusUseCase {
                 entity.setStatus(newStatus);
                 printingRepository.save(entity);
                 return new OrderDataNotificationDTO(
-                    RequestType.identification_printing, 
                     oldStatus, 
                     entity.getOperatorNumber()
                 );

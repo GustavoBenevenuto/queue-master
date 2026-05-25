@@ -6,14 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.DTO.pritting_details.PrintingOrderRequestDTO;
-import com.benevenuto.queue_master.DTO.stock_withdrawal_details.StockWithdrawalOrderRequestDTO;
-import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
-import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
 import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
 import com.benevenuto.queue_master.enums.OrderStatus;
-import com.benevenuto.queue_master.enums.RequestType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +36,6 @@ public class CreateStockWithdrawalOrderUseCase {
                     .build());
                 
                 notifications.add(new OrderDataNotificationDTO(
-                    RequestType.stock_withdrawal, 
                     OrderStatus.pending, 
                     item.getOperatorNumber()
                 ));
