@@ -2,6 +2,7 @@ package com.benevenuto.queue_master.infra.user.repositories.jpa;
 
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 
 import com.benevenuto.queue_master.domain.user.entity.User;

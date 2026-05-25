@@ -1,5 +1,6 @@
 package com.benevenuto.queue_master.infra.common.repository.jpa.interfaces;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @param <ID> Tipo do Identificador (UUID)
  * @param <R> Tipo da Interface JpaRepository (Spring Data)
  */
-public abstract class BaseRepositoryJpaImpl<T, ID, R extends JpaRepository<T, ID>> {
+public class BaseRepositoryJpaImpl<T, ID, R extends JpaRepository<T, ID>> {
 
     protected final R repository;
 
@@ -31,5 +32,9 @@ public abstract class BaseRepositoryJpaImpl<T, ID, R extends JpaRepository<T, ID
 
     public void deleteById(ID id) {
         repository.deleteById(id);
+    }
+    
+    public List<T> findAll() {
+   	 return repository.findAll();
     }
 }
