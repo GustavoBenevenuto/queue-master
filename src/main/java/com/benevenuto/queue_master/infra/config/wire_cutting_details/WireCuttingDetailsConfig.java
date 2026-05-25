@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import com.benevenuto.queue_master.application.wire_cutting_details.CreateWireCuttingOrderUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.DeleteWireCuttingOrderUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
+import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.UpdateWireCuttingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
 
@@ -31,6 +32,13 @@ public class WireCuttingDetailsConfig {
         IWireCuttingDetailsRepository wireRepo
     ) {
         return new GetWireCuttingOrdersByOperatorUseCase(wireRepo);
+    }
+
+    @Bean
+    public GetWireCuttingOrdersUseCase getWireCuttingOrdersUseCase(
+        IWireCuttingDetailsRepository wireRepo
+    ) {
+        return new GetWireCuttingOrdersUseCase(wireRepo);
     }
 
     @Bean

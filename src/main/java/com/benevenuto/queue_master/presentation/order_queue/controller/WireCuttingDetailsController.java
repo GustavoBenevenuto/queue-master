@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.DTO.wire_cutting_details.WireCuttingOrderRequestDTO;
 import com.benevenuto.queue_master.application.wire_cutting_details.CreateWireCuttingOrderUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.DeleteWireCuttingOrderUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
+import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.UpdateWireCuttingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
 import com.benevenuto.queue_master.enums.OrderStatus;
@@ -35,26 +35,31 @@ public class WireCuttingDetailsController {
     private final CreateWireCuttingOrderUseCase createUseCase;
     private final DeleteWireCuttingOrderUseCase deleteUseCase;
     private final GetWireCuttingOrdersByOperatorUseCase getByOperatorUseCase;
+    private final GetWireCuttingOrdersUseCase getWireCuttingOrdersUseCase;
     private final UpdateWireCuttingOrderStatusUseCase updateStatusUseCase;
     private final QueueEventPublisher queueEventPublisher;
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody List<WireCuttingDetails> wire, @RequestParam String opNumber) {
-        List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(wire);
+    public ResponseEntity<Void> create(@RequestBody List<WireCuttingDetails> dto, @RequestParam String opNumber) {
+        List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
 
         createdOrders.stream()
             .distinct()
             .forEach(notification -> 
-                queueEventPublisher.publishQueueUpdate(notification.type(), notification.status())
+                queueEventPublisher.publishQueueUpdate(notification.type(), notification.status(), opNumber)
             );
 
-        queueEventPublisher.publishOperatorUpdate(opNumber);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     
     @GetMapping("/operator/{operatorNumber}")
     public ResponseEntity<List<WireCuttingDetails>> listByOperator(@PathVariable String operatorNumber) {
         return ResponseEntity.ok(getByOperatorUseCase.execute(operatorNumber));
+    }
+    
+    @GetMapping()
+    public ResponseEntity<List<WireCuttingDetails>> listAll() {
+        return ResponseEntity.ok(getWireCuttingOrdersUseCase.execute());
     }
 
     @PatchMapping("/{id}/status")
@@ -64,9 +69,7 @@ public class WireCuttingDetailsController {
         
         OrderDataNotificationDTO oldOrderData = updateStatusUseCase.execute(id, status);
 
-        queueEventPublisher.publishQueueUpdate(oldOrderData.type(), oldOrderData.status());
-        queueEventPublisher.publishQueueUpdate(oldOrderData.type(), status);
-        queueEventPublisher.publishOperatorUpdate(oldOrderData.operatorNumber());
+        queueEventPublisher.publishQueueUpdate(oldOrderData.type(), status, oldOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }
@@ -75,8 +78,7 @@ public class WireCuttingDetailsController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         OrderDataNotificationDTO deletedOrderData = deleteUseCase.execute(id);
 
-        queueEventPublisher.publishQueueUpdate(deletedOrderData.type(), deletedOrderData.status());
-        queueEventPublisher.publishOperatorUpdate(deletedOrderData.operatorNumber());
+        queueEventPublisher.publishQueueUpdate(deletedOrderData.type(), deletedOrderData.status(), deletedOrderData.operatorNumber());
 
         return ResponseEntity.noContent().build();
     }

@@ -1,17 +1,15 @@
 package com.benevenuto.queue_master.presentation.websocket;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersUseCase;
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersByOperatorUseCase;
+import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
+import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
-import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
 import com.benevenuto.queue_master.enums.OrderStatus;
 import com.benevenuto.queue_master.enums.RequestType;
 
@@ -20,56 +18,63 @@ public class QueueEventPublisher {
 
     private final SimpMessagingTemplate messagingTemplate;
     
-    // Casos de Uso do Operador por Subdomínio
-    private final GetPrintingOrdersByOperatorUseCase getPrintingOrdersByOperatorUseCase;
-    private final GetWireCuttingOrdersByOperatorUseCase getWireCuttingOrdersByOperatorUseCase;
-    private final GetStockWithdrawalOrdersByOperatorUseCase getStockWithdrawalOrdersByOperatorUseCase;
+    // Use Cases para listagem GERAL (Todos os itens da fila - @GetMapping)
+    private final GetStockWithdrawalOrdersUseCase getStockWithdrawalOrdersUseCase;
+    private final GetPrintingOrdersUseCase getPrintingOrdersUseCase;
+    private final GetWireCuttingOrdersUseCase getWireCuttingOrdersUseCase;
+
+    // Use Cases para listagem por OPERADOR (@GetMapping("/operator/{operatorNumber}"))
+    private final GetStockWithdrawalOrdersByOperatorUseCase getStockWithdrawalByOperatorUseCase;
+    private final GetPrintingOrdersByOperatorUseCase getPrintingByOperatorUseCase;
+    private final GetWireCuttingOrdersByOperatorUseCase getWireCuttingByOperatorUseCase;
 
     public QueueEventPublisher(
             SimpMessagingTemplate messagingTemplate, 
-            GetPrintingOrdersByOperatorUseCase getPrintingOrdersByOperatorUseCase,
-            GetWireCuttingOrdersByOperatorUseCase getWireCuttingOrdersByOperatorUseCase,
-            GetStockWithdrawalOrdersByOperatorUseCase getStockWithdrawalOrdersByOperatorUseCase
+            GetStockWithdrawalOrdersUseCase getStockWithdrawalOrdersUseCase,
+            GetPrintingOrdersUseCase getPrintingOrdersUseCase,
+            GetWireCuttingOrdersUseCase getWireCuttingOrdersUseCase,
+            GetStockWithdrawalOrdersByOperatorUseCase getStockWithdrawalByOperatorUseCase,
+            GetPrintingOrdersByOperatorUseCase getPrintingByOperatorUseCase,
+            GetWireCuttingOrdersByOperatorUseCase getWireCuttingByOperatorUseCase
     ) {
         this.messagingTemplate = messagingTemplate;
-        this.getPrintingOrdersByOperatorUseCase = getPrintingOrdersByOperatorUseCase;
-        this.getWireCuttingOrdersByOperatorUseCase = getWireCuttingOrdersByOperatorUseCase;
-        this.getStockWithdrawalOrdersByOperatorUseCase = getStockWithdrawalOrdersByOperatorUseCase;
+        this.getStockWithdrawalOrdersUseCase = getStockWithdrawalOrdersUseCase;
+        this.getPrintingOrdersUseCase = getPrintingOrdersUseCase;
+        this.getWireCuttingOrdersUseCase = getWireCuttingOrdersUseCase;
+        this.getStockWithdrawalByOperatorUseCase = getStockWithdrawalByOperatorUseCase;
+        this.getPrintingByOperatorUseCase = getPrintingByOperatorUseCase;
+        this.getWireCuttingByOperatorUseCase = getWireCuttingByOperatorUseCase;
     }
 
     /**
-     * Publica atualizações no painel da estação específica da fábrica.
-     * Como a listagem da fila geral por estação agora roda nos controllers específicos,
-     * o WebSocket apenas repassa o payload processado ou dispara gatilhos simples se necessário.
+     * Atualiza em tempo real a fila GERAL da estação E a fila específica do OPERADOR.
      */
-    public void publishQueueUpdate(RequestType type, OrderStatus status) {
-        // Exemplo de rota: /topic/queue/wire_cutting/pending
-        String destination = String.format("/topic/queue/%s/%s", type.name(), status.name());
-        
-        // Se você optar por enviar a fila atualizada diretamente por aqui, 
-        // certifique-se de injetar também os UseCases de fila (GetPrintingQueueUseCase, etc.) 
-        // e fazer um switch(type) para buscar a lista antes de enviar.
-        messagingTemplate.convertAndSend(destination, "Fila atualizada"); 
-    }
-    
-    /**
-     * Consolida em tempo real todas as ordens das 3 estações que pertencem a este operador.
-     */
-    public void publishOperatorUpdate(String operatorNumber) {
-        List<PrintingDetails> consolidatedQueue = new ArrayList<>();
+    public void publishQueueUpdate(RequestType type, OrderStatus status, String operatorNumber) {
+        // 1. Resolve o nome base do tópico por subdomínio (Kebab-Case)
+        String topicBase = switch (type) {
+            case identification_printing -> "printing";
+            case wire_cutting -> "wire-cutting";
+            case stock_withdrawal -> "stock-withdrawal";
+        };
 
-        // Coleta os dados isolados de cada novo Caso de Uso correspondente
-        consolidatedQueue.addAll(getPrintingOrdersByOperatorUseCase.execute(operatorNumber));
-//        consolidatedQueue.addAll(getWireCuttingOrdersByOperatorUseCase.execute(operatorNumber));
-//        consolidatedQueue.addAll(getStockWithdrawalOrdersByOperatorUseCase.execute(operatorNumber));
+        // 2. DISPARO GERAL: Atualiza quem está ouvindo a fila cheia (findAll)
+        List<?> updatedGeneralQueue = switch (type) {
+            case identification_printing -> getPrintingOrdersUseCase.execute();
+            case wire_cutting -> getWireCuttingOrdersUseCase.execute();
+            case stock_withdrawal -> getStockWithdrawalOrdersUseCase.execute();
+        };
+        String generalDestination = "/topic/" + topicBase;
+        messagingTemplate.convertAndSend(generalDestination, updatedGeneralQueue);
 
-        // Garante que o payload enviado via WS siga ordenado de forma decrescente pela data de criação
-        List<Object> updatedOperatorOrders = consolidatedQueue.stream()
-                .sorted(Comparator.comparing(PrintingDetails::getCreatedAt).reversed())
-                .collect(Collectors.toList());
-        
-        // Envia para o tópico exclusivo dele. Ex: /topic/operator/OP-TESTE
-        String destination = "/topic/operator/" + operatorNumber;
-        messagingTemplate.convertAndSend(destination, updatedOperatorOrders);
+        // 3. DISPARO POR OPERADOR: Atualiza o painel privado daquele operador específico na estação
+        if (operatorNumber != null && !operatorNumber.isBlank()) {
+            List<?> updatedOperatorQueue = switch (type) {
+                case identification_printing -> getPrintingByOperatorUseCase.execute(operatorNumber);
+                case wire_cutting -> getWireCuttingByOperatorUseCase.execute(operatorNumber);
+                case stock_withdrawal -> getStockWithdrawalByOperatorUseCase.execute(operatorNumber);
+            };
+            String operatorDestination = String.format("/topic/%s/operator/%s", topicBase, operatorNumber);
+            messagingTemplate.convertAndSend(operatorDestination, updatedOperatorQueue);
+        }
     }
 }

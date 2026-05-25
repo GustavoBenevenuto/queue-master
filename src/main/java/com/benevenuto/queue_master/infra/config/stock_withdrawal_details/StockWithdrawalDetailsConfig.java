@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.CreateStockWithdrawalOrderUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.DeleteStockWithdrawalOrderUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
+import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.UpdateStockWithdrawalOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
 
@@ -25,12 +26,19 @@ public class StockWithdrawalDetailsConfig {
     ) {
         return new DeleteStockWithdrawalOrderUseCase(stockRepo);
     }
-
+    
     @Bean
     public GetStockWithdrawalOrdersByOperatorUseCase getStockWithdrawalOrdersByOperatorUseCase(
         IStockWithdrawalDetailsRepository stockRepo
     ) {
         return new GetStockWithdrawalOrdersByOperatorUseCase(stockRepo);
+    }
+    
+    @Bean
+    public GetStockWithdrawalOrdersUseCase getStockWithdrawalOrdersUseCase(
+        IStockWithdrawalDetailsRepository stockRepo
+    ) {
+        return new GetStockWithdrawalOrdersUseCase(stockRepo);
     }
 
     @Bean

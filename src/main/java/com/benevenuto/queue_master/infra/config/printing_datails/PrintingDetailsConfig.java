@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import com.benevenuto.queue_master.application.printing_details.CreatePrintingOrderUseCase;
 import com.benevenuto.queue_master.application.printing_details.DeletePrintingOrderUseCase;
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersByOperatorUseCase;
+import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersUseCase;
 import com.benevenuto.queue_master.application.printing_details.UpdatePrintingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
 
@@ -31,6 +32,13 @@ public class PrintingDetailsConfig {
         IPrintingDetailsRepository printRepo
     ) {
         return new GetPrintingOrdersByOperatorUseCase(printRepo);
+    }
+
+    @Bean
+    public GetPrintingOrdersUseCase getPrintingOrdersUseCase(
+        IPrintingDetailsRepository printRepo
+    ) {
+        return new GetPrintingOrdersUseCase(printRepo);
     }
 
     @Bean
