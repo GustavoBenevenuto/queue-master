@@ -19,14 +19,12 @@ public class SecurityConfig {
 
     private final SecurityFilter securityFilter;
 
-    // Construtor para injeção via Dependency Injection (sem @Autowired)
     public SecurityConfig(SecurityFilter securityFilter) {
         this.securityFilter = securityFilter;
     }
 
     /**
      * Configura a cadeia de filtros de segurança.
-     * Responsabilidade única: definir regras de autenticação e autorização.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -34,40 +32,38 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // 1. Rotas Públicas
+                        // 1. Rotas Públicas (Todos acessam o login e os canais iniciais do WS)
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers("/ws-queue/**").permitAll()
 
-                        // 2. Administração (Criação de usuários)
+                        // 2. Administração (SÓ ADMIN acessa o register)
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
 
-                        // 3. Regras de Negócio - /orders
-                        // OPERATOR: Só faz POST. 
-                        // INVENTOR e ADMIN: Fazem tudo (GET, POST, PUT, DELETE, etc)
+                        // 3. Regras de Negócio - /orders (Ordem estrita das rotas mais específicas para as gerais)
+                        
+                        // OPERATOR: Pode cadastrar ordens (POST), mudar status (PATCH) e listar as próprias (GET por operador)
                         .requestMatchers(HttpMethod.POST, "/orders/**").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
-                        .requestMatchers("/orders/**").hasAnyRole("ADMIN", "INVENTOR")
+                        .requestMatchers(HttpMethod.PATCH, "/orders/**").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/orders/*/operator/*").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
 
-                        // 4. Qualquer outra rota exige autenticação
+                        // LISTA GERAL: Operador NÃO acessa a rota de trazer todos (Apenas ADMIN e INVENTOR)
+                        // DELETAR: Apenas ADMIN e INVENTOR deletam itens
+                        .requestMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("ADMIN", "INVENTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/orders/**").hasAnyRole("ADMIN", "INVENTOR")
+
+                        // 4. Qualquer outra rota exige autenticação genérica
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    /**
-     * Expõe o AuthenticationManager como bean para uso no domínio (ex: login use case).
-     * Segue Dependency Inversion: depender de abstração.
-     */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    /**
-     * Bean de codificador de senha.
-     * Segue Single Responsibility: responsabilidade única de fornecer hashing seguro.
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

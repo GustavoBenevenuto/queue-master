@@ -1,80 +1,100 @@
 🌐 Language:
-[English](./README.md) | [Portuguese](./README.pt-br.md)
+[English](./README.md) | [Português](./README.pt-BR.md)
 
-# 🚀 Queue Master
+# Queue Master 🚀
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-brightgreen)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-17%20%2F%2021-orange)](https://www.oracle.com/java/)
-[![WebSocket](https://img.shields.io/badge/Protocol-WebSocket%20%2F%20STOMP-blue)](https://stomp.github.io/)
+**Queue Master** is a real-time industrial production queue management system. It was designed to coordinate the workflow of service orders inside a factory, splitting processes into three major workstations: **Stock Withdrawal**, **Identification Printing**, and **Wire Cutting**.
 
-**Queue Master** is a reactive queue management ecosystem specifically designed to optimize workflows in dynamic production and manufacturing environments (shop floor operations).
-
-The system organizes and prioritizes complex work orders for different workstations, distributing data in **real time** through persistent bidirectional connections.
+The system uses **WebSockets (STOMP)** to instantly update global dashboards and private operator feeds whenever any status change or order movement occurs.
 
 ---
 
-## 📋 What is this project about?
+## 🏗️ Project Architecture and Organization
 
-In industrial and operational environments, communication bottlenecks slow down the production line. **Queue Master** acts as the orchestration brain. It receives complex requests containing multiple subtasks, processes and persists those demands, and instantly dispatches them to reactive dashboards at their respective workstations.
-
-### Supported Workstations:
-* **`wire_cutting`** (Wire/Harness Cutting)
-* **`identification_printing`** (Identification Label Printing)
-* **`stock_withdrawal`** (Stock Component Withdrawal)
-
----
-
-## 🛠️ What problems does it solve?
-
-1. **The End of "F5" (Inefficient Polling):** Traditional systems require operators to constantly refresh the page to check for new orders. Queue Master uses **WebSockets with STOMP** to push updates at the exact millisecond they are persisted in the database.
-
-2. **Separation of Concerns (Clean Architecture):** Business rules and Use Cases are completely isolated from network protocols and security infrastructure.
-
-3. **Granular Role-Based Security:** Native protection through **Spring Security (JWT)** with strict privilege validation:
-   * `OPERATOR`: Exclusive permission to create orders (`POST /orders`).
-   * `INVENTOR` and `ADMIN`: Full management control and workflow status modification permissions.
-
----
-
-## 🏗️ Reactive Flow Architecture
-
-The system operates using the *Publish/Subscribe (Pub/Sub)* pattern with dynamic topics divided by **Workstation** and **Status**. Here is how data flows through the architecture:
+The project follows **Clean Architecture** and **SOLID** principles, being fully structured around business subdomains. The presentation layer (`presentation`) reflects this separation in both REST controllers and real-time event publishers.
 
 ```text
-[HTTP Client]
-           │
-           ▼ (POST /orders)
-   [OrderController] ───────────(Orchestrates)──────────► [CreateOrderUseCase]
-           │                                                       │
-           │                                                (Persists to Database)
-           │                                                       ▼
-           │◄────────────(Returns Created Items)────────── [Database]
-           │
-           ▼
- [QueueEventPublisher] (For each affected workstation)
-           │
-           ├──► 1. Queries updated database state (GetQueueByStationUseCase)
-           │
-           └──► 2. Dispatches updated JSON payload to the STOMP Broker
-                                         │
-                                         ▼
-                           [Subscribed Browsers/Dashboards]
-                           Example: /topic/queue/wire_cutting/pending
+src/main/java/com/benevenuto/queue_master/
+│
+├── application/             # Use Cases isolated by domain
+├── domain/                  # Business entities and core rules
+├── enums/                   # Global enums (OrderStatus, RequestType)
+├── infra/                   # Infrastructure configurations (Security, WebSockets)
+│
+└── presentation/            # Entry Layer (Controllers and Events)
+    ├── order_queue/         # REST Controllers organized by workstation
+    └── websocket/           # WebSocket messaging infrastructure
+        ├── interfaces/      # Contracts and abstractions (IQueueEventPublisher)
+        ├── printing/        # Real-time Printing events
+        ├── stock_withdrawal/# Real-time Stock Withdrawal events
+        └── wire_cutting/    # Real-time Wire Cutting events
 ```
-
-## 💻 Technologies Used
-
-* **Core:** Java 17+, Spring Boot 3.x
-* **Database & Migrations:** Spring Data JPA, PostgreSQL, Flyway Migrations
-* **Real-Time & Protocols:** Spring WebSocket, STOMP Messaging Framework
-* **Security:** Spring Security, JWT (JSON Web Tokens), BCrypt Encryption
-* **Testing:** JUnit 5, AssertJ, Spring Web Environment
 
 ---
 
-## ⚙️ Setup and Installation
+## 🔐 Permission Matrix and Security
 
-### Prerequisites
-* Java 17 or higher installed.
-* Maven 3.6+ or Maven Wrapper (`./mvnw`).
-* A running PostgreSQL database (or use the test profile with H2).
+The API uses role-based access control (**RBAC**) with Spring Security and JWT tokens. The roles are divided into:
+
+* **ADMIN**: Full system control, including user management.
+* **INVENTOR**: Factory supervisor/manager. Can access global dashboards and manage orders, but cannot create users.
+* **OPERATOR**: Shop floor operator. Restricted to the scope of their own activities and registration number (`operatorNumber`).
+
+### REST HTTP Endpoints
+
+| Mapping | Method | Endpoint | ADMIN | INVENTOR | OPERATOR |
+| :--- | :---: | :--- | :---: | :---: | :---: |
+| **Authentication** | `POST` | `/auth/login` | permitAll | permitAll | permitAll |
+| **Authentication** | `POST` | `/auth/register` | ✅ | ❌ | ❌ |
+| **Orders** | `POST` | `/orders/**` | ✅ | ✅ | ✅ |
+| **Orders** | `PATCH` | `/orders/**/status` | ✅ | ✅ | ✅ |
+| **Orders** | `GET` | `/orders/**/operator/{opNumber}` | ✅ | ✅ | ✅ |
+| **Orders** | `GET` | `/orders/**` *(List All)* | ✅ | ✅ | ❌ |
+| **Orders** | `DELETE` | `/orders/**` | ✅ | ✅ | ❌ |
+
+> 💡 **Note:** The `**` prefix in order endpoints is replaced by `stock-withdrawal`, `printing`, or `wire-cutting` depending on the workstation.
+
+---
+
+## 📡 Real-Time Communication (WebSockets)
+
+The backend exposes a centralized endpoint using the STOMP protocol over WebSockets for automatic UI updates (without requiring *polling*).
+
+* **Connection Endpoint (Handshake):** `ws://localhost:8080/ws-queue`
+
+### Subscription Topics
+
+The frontend can subscribe to two types of topics depending on the dashboard being rendered:
+
+#### 1. Global Dashboards (Factory Displays)
+Automatically fed by the `findAll()` method of each workstation whenever a write event occurs.
+
+* `/topic/stock-withdrawal`
+* `/topic/printing`
+* `/topic/wire-cutting`
+
+#### 2. Private Dashboards (Operator Feed)
+Filtered feeds that only deliver orders associated with the connected operator's unique identifier.
+
+* `/topic/stock-withdrawal/operator/{operatorNumber}`
+* `/topic/printing/operator/{operatorNumber}`
+* `/topic/wire-cutting/operator/{operatorNumber}`
+
+---
+
+## 🛠️ Technologies Used
+
+* **Java 17**
+* **Spring Boot 3.x**
+* **Spring Security** (Stateless Authentication via JWT)
+* **Spring WebSocket** (STOMP Messaging)
+* **Lombok** (Productivity and Boilerplate Reduction)
+
+---
+
+## 🚀 Running the Project
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/queue-master.git
+   ```
