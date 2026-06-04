@@ -13,7 +13,7 @@ O sistema utiliza **WebSockets (STOMP)** para atualizar instantaneamente os pain
 
 O projeto adota princípios de **Clean Architecture** e **SOLID**, sendo totalmente estruturado em torno de subdomínios de negócio. A camada de apresentação (`presentation`) reflete essa divisão tanto nos controllers REST quanto nos publicadores de eventos em tempo real.
 
-***text
+```
 src/main/java/com/benevenuto/queue_master/
 │
 ├── application/             # Casos de Uso (Use Cases) isolados por domínio
@@ -28,7 +28,7 @@ src/main/java/com/benevenuto/queue_master/
         ├── printing/        # Eventos em tempo real da Impressão
         ├── stock_withdrawal/# Eventos em tempo real do Estoque
         └── wire_cutting/    # Eventos em tempo real do Corte de Cabos
-***
+```
 
 ## 🔐 Matriz de Permissões e Segurança
 
