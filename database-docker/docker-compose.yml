@@ -1,5 +1,5 @@
 # Define a versão do Docker Compose que estamos usando. Versão 3 é compatível com a maioria dos recursos modernos.
-version: '3'
+version: "3"
 
 services:
   # Define um serviço chamado "local-postgres-compose". Cada serviço é um container que será executado.
@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: postgres # Usuário padrão do banco.
       POSTGRES_PASSWORD: postgres # Senha do usuário padrão do banco.
     ports:
-      - "5432:5432" # Mapeia a porta 5432 do container para a porta 5432 do host. Permite que aplicações do computador acessem o PostgreSQL localmente.
+      - "5431:5432" # Mapeia a porta 5431 do container para a porta 5432 do host. Permite que aplicações do computador acessem o PostgreSQL localmente.
     volumes:
       # Cria um volume persistente:
       # ./postgres-data (pasta do host) será usado para armazenar os dados do PostgreSQL.
