@@ -57,12 +57,14 @@ The API uses role-based access control (**RBAC**) with Spring Security and JWT t
 | **Users** | `DELETE` | `/users/{id}` | ✅ | ❌ | ❌ |
 | **Users** | `PATCH` | `/users/{id}/password` | own user only | own user only | own user only |
 | **Orders** | `POST` | `/orders/**` | ✅ | ✅ | ✅ |
-| **Orders** | `PATCH` | `/orders/**/status` | ✅ | ✅ | ✅ |
+| **Orders** | `PATCH` | `/orders/**/status` | ✅ | ✅ | ❌ |
 | **Orders** | `GET` | `/orders/**/operator/{opNumber}` | ✅ | ✅ | ✅ |
 | **Orders** | `GET` | `/orders/**` *(List All)* | ✅ | ✅ | ❌ |
 | **Orders** | `DELETE` | `/orders/**` | ✅ | ✅ | ❌ |
 
 > 💡 **Note:** The `**` prefix in order endpoints is replaced by `stock-withdrawal`, `printing`, or `wire-cutting` depending on the workstation.
+>
+> 💡 **OPERATOR scope:** an OPERATOR can only **create** orders and **view their own** orders (`GET /orders/**/operator/{opNumber}`). They cannot update order status, list all orders, or delete orders.
 
 ---
 
@@ -288,7 +290,7 @@ Response `200 OK`:
 
 Response: same shape as above, filtered by `operatorNumber`.
 
-#### Update order status
+#### Update order status (ADMIN / INVENTOR only)
 `PATCH {{baseUrl}}/orders/printing/a3b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d/status?status=in_progress`
 
 `status` accepts: `pending`, `in_progress`, `finished`.
@@ -345,7 +347,7 @@ Response `200 OK`:
 ]
 ```
 
-#### Update status / Delete
+#### Update status / Delete (ADMIN / INVENTOR only)
 `PATCH {{baseUrl}}/orders/stock-withdrawal/b4c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e/status?status=finished` → `204 No Content`
 `DELETE {{baseUrl}}/orders/stock-withdrawal/b4c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e` → `204 No Content`
 
@@ -396,7 +398,7 @@ Response `200 OK`:
 ]
 ```
 
-#### Update status / Delete
+#### Update status / Delete (ADMIN / INVENTOR only)
 `PATCH {{baseUrl}}/orders/wire-cutting/c5d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f/status?status=in_progress` → `204 No Content`
 `DELETE {{baseUrl}}/orders/wire-cutting/c5d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f` → `204 No Content`
 

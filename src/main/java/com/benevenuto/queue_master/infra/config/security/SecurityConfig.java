@@ -56,12 +56,14 @@ public class SecurityConfig {
                         // 3. Regras de Negócio - /orders (Ordem estrita das rotas mais específicas para
                         // as gerais)
 
-                        // OPERATOR: Pode cadastrar ordens (POST), mudar status (PATCH) e listar as
-                        // próprias (GET por operador)
+                        // OPERATOR: Pode apenas cadastrar ordens (POST) e listar as próprias
+                        // (GET por operador). NÃO pode mudar status, listar tudo ou deletar.
                         .requestMatchers(HttpMethod.POST, "/orders/**").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
-                        .requestMatchers(HttpMethod.PATCH, "/orders/**").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
                         .requestMatchers(HttpMethod.GET, "/orders/*/operator/*")
                         .hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
+
+                        // STATUS: Apenas ADMIN e INVENTOR mudam o status das ordens
+                        .requestMatchers(HttpMethod.PATCH, "/orders/**").hasAnyRole("ADMIN", "INVENTOR")
 
                         // LISTA GERAL: Operador NÃO acessa a rota de trazer todos (Apenas ADMIN e
                         // INVENTOR)

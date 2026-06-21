@@ -55,12 +55,14 @@ A API possui controle de acesso baseado em perfis (**RBAC**) utilizando Spring S
 | **Usuários** | `DELETE` | `/users/{id}` | ✅ | ❌ | ❌ |
 | **Usuários** | `PATCH` | `/users/{id}/password` | apenas o próprio | apenas o próprio | apenas o próprio |
 | **Ordens** | `POST` | `/orders/**` | ✅ | ✅ | ✅ |
-| **Ordens** | `PATCH` | `/orders/**/status` | ✅ | ✅ | ✅ |
+| **Ordens** | `PATCH` | `/orders/**/status` | ✅ | ✅ | ❌ |
 | **Ordens** | `GET` | `/orders/**/operator/{opNumber}` | ✅ | ✅ | ✅ |
 | **Ordens** | `GET` | `/orders/**` *(Listar Todos)* | ✅ | ✅ | ❌ |
 | **Ordens** | `DELETE` | `/orders/**` | ✅ | ✅ | ❌ |
 
 > 💡 **Nota:** O prefixo `**` nos endpoints de ordens é substituído por `stock-withdrawal`, `printing` ou `wire-cutting` de acordo com a estação.
+>
+> 💡 **Escopo do OPERATOR:** o OPERATOR pode apenas **criar** ordens e **visualizar as suas próprias** (`GET /orders/**/operator/{opNumber}`). Ele não pode atualizar o status, listar todas as ordens ou excluir ordens.
 
 ---
 
@@ -284,7 +286,7 @@ Resposta `200 OK`:
 
 Resposta: mesmo formato acima, filtrado por `operatorNumber`.
 
-#### Atualizar status da ordem
+#### Atualizar status da ordem (apenas ADMIN / INVENTOR)
 `PATCH {{baseUrl}}/orders/printing/a3b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d/status?status=in_progress`
 
 `status` aceita: `pending`, `in_progress`, `finished`.
@@ -341,7 +343,7 @@ Resposta `200 OK`:
 ]
 ```
 
-#### Atualizar status / Remover
+#### Atualizar status / Remover (apenas ADMIN / INVENTOR)
 `PATCH {{baseUrl}}/orders/stock-withdrawal/b4c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e/status?status=finished` → `204 No Content`
 `DELETE {{baseUrl}}/orders/stock-withdrawal/b4c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e` → `204 No Content`
 
@@ -392,7 +394,7 @@ Resposta `200 OK`:
 ]
 ```
 
-#### Atualizar status / Remover
+#### Atualizar status / Remover (apenas ADMIN / INVENTOR)
 `PATCH {{baseUrl}}/orders/wire-cutting/c5d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f/status?status=in_progress` → `204 No Content`
 `DELETE {{baseUrl}}/orders/wire-cutting/c5d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f` → `204 No Content`
 
