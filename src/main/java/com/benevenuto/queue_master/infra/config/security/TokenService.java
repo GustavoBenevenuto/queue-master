@@ -27,6 +27,7 @@ public class TokenService {
                     .withSubject(user.getEmail()) // Define o assunto do token, aqui o e-mail do usuário
                     .withClaim("id", String.valueOf(user.getId()))
                     .withClaim("name", user.getName())
+                    .withClaim("operatorNumber", user.getOperatorNumber())
                     .withClaim("role", user.getRole().name())
                     .withExpiresAt(generateExpirationDate()) // Define a data de expiração do token
                     .sign(algorithm); // Assina o token com o algoritmo definido
