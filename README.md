@@ -157,7 +157,7 @@ Response `200 OK`:
 #### Create user
 `POST {{baseUrl}}/users`
 
-New users are always created with the default password **`padrao123`** — there is no `password` field in the request.
+New users are always created with the default password **`pass123456`** — there is no `password` field in the request.
 
 Request body:
 ```json
@@ -234,7 +234,7 @@ The `{id}` in the path must match the authenticated user making the request, oth
 Request body:
 ```json
 {
-  "currentPassword": "padrao123",
+  "currentPassword": "pass123456",
   "newPassword": "myNewS3cret!"
 }
 ```

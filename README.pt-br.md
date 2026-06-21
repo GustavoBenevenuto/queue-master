@@ -153,7 +153,7 @@ Resposta `200 OK`:
 #### Criar usuário
 `POST {{baseUrl}}/users`
 
-Novos usuários são sempre criados com a senha padrão **`padrao123`** — não existe campo `password` na requisição.
+Novos usuários são sempre criados com a senha padrão **`pass123456`** — não existe campo `password` na requisição.
 
 Corpo da requisição:
 ```json
@@ -230,7 +230,7 @@ O `{id}` no caminho precisa ser o mesmo do usuário autenticado que faz a requis
 Corpo da requisição:
 ```json
 {
-  "currentPassword": "padrao123",
+  "currentPassword": "pass123456",
   "newPassword": "minhaNovaS3nha!"
 }
 ```

@@ -13,7 +13,7 @@ import com.benevenuto.queue_master.domain.user.repository.IUserRepository;
 
 public class CreateNewUserUseCase {
 
-    public static final String DEFAULT_PASSWORD = "padrao123";
+    public static final String DEFAULT_PASSWORD = "pass123456";
 
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
