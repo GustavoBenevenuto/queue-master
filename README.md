@@ -51,6 +51,11 @@ The API uses role-based access control (**RBAC**) with Spring Security and JWT t
 | :--- | :---: | :--- | :---: | :---: | :---: |
 | **Authentication** | `POST` | `/auth/login` | permitAll | permitAll | permitAll |
 | **Authentication** | `POST` | `/auth/register` | ✅ | ❌ | ❌ |
+| **Users** | `POST` | `/users` | ✅ | ❌ | ❌ |
+| **Users** | `GET` | `/users` | ✅ | ❌ | ❌ |
+| **Users** | `PUT` | `/users/{id}` | ✅ | ❌ | ❌ |
+| **Users** | `DELETE` | `/users/{id}` | ✅ | ❌ | ❌ |
+| **Users** | `PATCH` | `/users/{id}/password` | own user only | own user only | own user only |
 | **Orders** | `POST` | `/orders/**` | ✅ | ✅ | ✅ |
 | **Orders** | `PATCH` | `/orders/**/status` | ✅ | ✅ | ✅ |
 | **Orders** | `GET` | `/orders/**/operator/{opNumber}` | ✅ | ✅ | ✅ |
@@ -140,6 +145,99 @@ Response `200 OK`:
   "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huLmRvZUBleGFtcGxlLmNvbSJ9.xxxxxxxxxxxxxxxx"
 }
 ```
+
+---
+
+### User Management (`/users`)
+
+> `POST`, `GET`, `PUT` and `DELETE` are restricted to **ADMIN**. `PATCH /users/{id}/password` can be called by any authenticated user, but only to change their **own** password.
+
+#### Create user
+`POST {{baseUrl}}/users`
+
+New users are always created with the default password **`padrao123`** — there is no `password` field in the request.
+
+Request body:
+```json
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "operatorNumber": 1002,
+  "role": "OPERATOR"
+}
+```
+`role` accepts: `ADMIN`, `INVENTOR`, `OPERATOR`.
+
+Response `201 Created`:
+```json
+{
+  "id": "7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "operatorNumber": 1002,
+  "role": "OPERATOR",
+  "active": true,
+  "lastLogin": null,
+  "createdAt": "21/06/2026 10:20:00",
+  "updatedAt": "21/06/2026 10:20:00"
+}
+```
+
+#### List users
+`GET {{baseUrl}}/users`
+
+Response `200 OK`:
+```json
+[
+  {
+    "id": "7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "operatorNumber": 1002,
+    "role": "OPERATOR",
+    "active": true,
+    "lastLogin": null,
+    "createdAt": "21/06/2026 10:20:00",
+    "updatedAt": "21/06/2026 10:20:00"
+  }
+]
+```
+
+#### Edit user
+`PUT {{baseUrl}}/users/7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d`
+
+All fields are optional — only the provided fields are updated.
+
+Request body:
+```json
+{
+  "name": "Jane Smith Silva",
+  "role": "INVENTOR",
+  "active": true
+}
+```
+
+Response `200 OK`: updated user, same shape as the create response.
+
+#### Delete user
+`DELETE {{baseUrl}}/users/7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d`
+
+Response: `204 No Content`.
+
+#### Change password
+`PATCH {{baseUrl}}/users/7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d/password`
+
+The `{id}` in the path must match the authenticated user making the request, otherwise the API returns `403 Forbidden`.
+
+Request body:
+```json
+{
+  "currentPassword": "padrao123",
+  "newPassword": "myNewS3cret!"
+}
+```
+
+Response: `204 No Content`.
 
 ---
 

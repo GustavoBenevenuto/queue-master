@@ -13,6 +13,8 @@ import com.benevenuto.queue_master.domain.user.repository.IUserRepository;
 
 public class CreateNewUserUseCase {
 
+    public static final String DEFAULT_PASSWORD = "padrao123";
+
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -30,9 +32,11 @@ public class CreateNewUserUseCase {
             throw new UserAlredyExistsException();
         }
 
-        // 3. Password Encryption
-        String encryptedPassword = passwordEncoder.encode(newUser.getPassword());
-        newUser.setPassword(encryptedPassword);
+        // 3. Password Encryption (falls back to the default password when none is provided)
+        String rawPassword = newUser.getPassword() == null || newUser.getPassword().isBlank()
+                ? DEFAULT_PASSWORD
+                : newUser.getPassword();
+        newUser.setPassword(passwordEncoder.encode(rawPassword));
 
         // 4. Persistence
         return userRepository.save(newUser);

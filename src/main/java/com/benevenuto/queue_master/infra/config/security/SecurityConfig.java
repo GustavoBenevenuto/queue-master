@@ -44,6 +44,15 @@ public class SecurityConfig {
                         // 2. Administração (SÓ ADMIN acessa o register)
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
 
+                        // 2.1 Usuários (/users): troca de senha é liberada para qualquer usuário
+                        // autenticado (o próprio usecase garante que só altera a senha de si mesmo);
+                        // as demais operações de gestão de usuários são restritas a ADMIN
+                        .requestMatchers(HttpMethod.PATCH, "/users/*/password").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
+
                         // 3. Regras de Negócio - /orders (Ordem estrita das rotas mais específicas para
                         // as gerais)
 

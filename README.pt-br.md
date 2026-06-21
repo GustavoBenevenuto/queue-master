@@ -49,6 +49,11 @@ A API possui controle de acesso baseado em perfis (**RBAC**) utilizando Spring S
 | :--- | :---: | :--- | :---: | :---: | :---: |
 | **Autenticação** | `POST` | `/auth/login` | permitAll | permitAll | permitAll |
 | **Autenticação** | `POST` | `/auth/register` | ✅ | ❌ | ❌ |
+| **Usuários** | `POST` | `/users` | ✅ | ❌ | ❌ |
+| **Usuários** | `GET` | `/users` | ✅ | ❌ | ❌ |
+| **Usuários** | `PUT` | `/users/{id}` | ✅ | ❌ | ❌ |
+| **Usuários** | `DELETE` | `/users/{id}` | ✅ | ❌ | ❌ |
+| **Usuários** | `PATCH` | `/users/{id}/password` | apenas o próprio | apenas o próprio | apenas o próprio |
 | **Ordens** | `POST` | `/orders/**` | ✅ | ✅ | ✅ |
 | **Ordens** | `PATCH` | `/orders/**/status` | ✅ | ✅ | ✅ |
 | **Ordens** | `GET` | `/orders/**/operator/{opNumber}` | ✅ | ✅ | ✅ |
@@ -136,6 +141,99 @@ Resposta `200 OK`:
   "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huLmRvZUBleGFtcGxlLmNvbSJ9.xxxxxxxxxxxxxxxx"
 }
 ```
+
+---
+
+### Gestão de Usuários (`/users`)
+
+> `POST`, `GET`, `PUT` e `DELETE` são restritos a **ADMIN**. `PATCH /users/{id}/password` pode ser chamado por qualquer usuário autenticado, mas somente para alterar a **própria** senha.
+
+#### Criar usuário
+`POST {{baseUrl}}/users`
+
+Novos usuários são sempre criados com a senha padrão **`padrao123`** — não existe campo `password` na requisição.
+
+Corpo da requisição:
+```json
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "operatorNumber": 1002,
+  "role": "OPERATOR"
+}
+```
+`role` aceita: `ADMIN`, `INVENTOR`, `OPERATOR`.
+
+Resposta `201 Created`:
+```json
+{
+  "id": "7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "operatorNumber": 1002,
+  "role": "OPERATOR",
+  "active": true,
+  "lastLogin": null,
+  "createdAt": "21/06/2026 10:20:00",
+  "updatedAt": "21/06/2026 10:20:00"
+}
+```
+
+#### Listar usuários
+`GET {{baseUrl}}/users`
+
+Resposta `200 OK`:
+```json
+[
+  {
+    "id": "7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "operatorNumber": 1002,
+    "role": "OPERATOR",
+    "active": true,
+    "lastLogin": null,
+    "createdAt": "21/06/2026 10:20:00",
+    "updatedAt": "21/06/2026 10:20:00"
+  }
+]
+```
+
+#### Editar usuário
+`PUT {{baseUrl}}/users/7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d`
+
+Todos os campos são opcionais — apenas os campos enviados são atualizados.
+
+Corpo da requisição:
+```json
+{
+  "name": "Jane Smith Silva",
+  "role": "INVENTOR",
+  "active": true
+}
+```
+
+Resposta `200 OK`: usuário atualizado, no mesmo formato da resposta de criação.
+
+#### Remover usuário
+`DELETE {{baseUrl}}/users/7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d`
+
+Resposta: `204 No Content`.
+
+#### Alterar senha
+`PATCH {{baseUrl}}/users/7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d/password`
+
+O `{id}` no caminho precisa ser o mesmo do usuário autenticado que faz a requisição, caso contrário a API retorna `403 Forbidden`.
+
+Corpo da requisição:
+```json
+{
+  "currentPassword": "padrao123",
+  "newPassword": "minhaNovaS3nha!"
+}
+```
+
+Resposta: `204 No Content`.
 
 ---
 
