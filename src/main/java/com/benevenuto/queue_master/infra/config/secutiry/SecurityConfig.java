@@ -1,5 +1,7 @@
 package com.benevenuto.queue_master.infra.config.secutiry;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,6 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -39,21 +44,24 @@ public class SecurityConfig {
                         // 2. Administração (SÓ ADMIN acessa o register)
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
 
-                        // 3. Regras de Negócio - /orders (Ordem estrita das rotas mais específicas para as gerais)
-                        
-                        // OPERATOR: Pode cadastrar ordens (POST), mudar status (PATCH) e listar as próprias (GET por operador)
+                        // 3. Regras de Negócio - /orders (Ordem estrita das rotas mais específicas para
+                        // as gerais)
+
+                        // OPERATOR: Pode cadastrar ordens (POST), mudar status (PATCH) e listar as
+                        // próprias (GET por operador)
                         .requestMatchers(HttpMethod.POST, "/orders/**").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
                         .requestMatchers(HttpMethod.PATCH, "/orders/**").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
-                        .requestMatchers(HttpMethod.GET, "/orders/*/operator/*").hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/orders/*/operator/*")
+                        .hasAnyRole("ADMIN", "INVENTOR", "OPERATOR")
 
-                        // LISTA GERAL: Operador NÃO acessa a rota de trazer todos (Apenas ADMIN e INVENTOR)
+                        // LISTA GERAL: Operador NÃO acessa a rota de trazer todos (Apenas ADMIN e
+                        // INVENTOR)
                         // DELETAR: Apenas ADMIN e INVENTOR deletam itens
                         .requestMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("ADMIN", "INVENTOR")
                         .requestMatchers(HttpMethod.DELETE, "/orders/**").hasAnyRole("ADMIN", "INVENTOR")
 
                         // 4. Qualquer outra rota exige autenticação genérica
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -67,5 +75,28 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Permite que o Next.js acesse a API
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
+
+        // Permite os métodos HTTP que você vai usar
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        // Permite que o cabeçalho Authorization e o Content-Type passem na requisição
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+        // Importante caso no futuro decida usar cookies cruzados, se não, pode deixar
+        // true mesmo assim
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Aplica essa liberação para todas as rotas da API
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
