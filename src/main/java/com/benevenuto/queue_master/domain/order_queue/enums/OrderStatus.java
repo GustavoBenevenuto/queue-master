@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.enums;
+package com.benevenuto.queue_master.domain.order_queue.enums;
 
 public enum OrderStatus {
     pending, 

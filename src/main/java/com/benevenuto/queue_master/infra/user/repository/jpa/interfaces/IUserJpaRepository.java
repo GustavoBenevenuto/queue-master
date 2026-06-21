@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.infra.user.repositories.jpa.interfaces;
+package com.benevenuto.queue_master.infra.user.repository.jpa.interfaces;
 
 import java.util.Optional;
 import java.util.UUID;

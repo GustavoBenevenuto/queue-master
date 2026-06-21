@@ -16,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.benevenuto.queue_master.domain.user.constants.UserRole;
-import com.benevenuto.queue_master.domain.user.repositories.IUserRepository;
+import com.benevenuto.queue_master.domain.user.repository.IUserRepository;
 import com.benevenuto.queue_master.presentation.auth.dto.AuthDTO;
 import com.benevenuto.queue_master.presentation.auth.dto.RegisterRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;

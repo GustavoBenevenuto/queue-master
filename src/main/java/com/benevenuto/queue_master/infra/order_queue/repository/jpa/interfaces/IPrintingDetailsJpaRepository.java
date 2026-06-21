@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 
 public interface IPrintingDetailsJpaRepository extends JpaRepository<PrintingDetails, UUID> {
 
@@ -16,7 +16,7 @@ public interface IPrintingDetailsJpaRepository extends JpaRepository<PrintingDet
     @Query("SELECT p FROM PrintingDetails p WHERE p.operatorNumber = :operatorNumber ORDER BY p.isUrgent DESC, p.createdAt DESC")
     List<PrintingDetails> findByOperatorNumberPrioritized(@Param("operatorNumber") String operatorNumber);
 
-    List<PrintingDetails> findByPwNumber(String pwNumber);
+    List<PrintingDetails> findByWorkOrderNumber(String workOrderNumber);
 
     long countByStatus(OrderStatus status);
 }

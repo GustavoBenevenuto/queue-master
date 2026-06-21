@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.CreateStockWithdrawalOrderUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.DeleteStockWithdrawalOrderUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.UpdateStockWithdrawalOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.stock_withdrawal.websocket.StockWithdrawalQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

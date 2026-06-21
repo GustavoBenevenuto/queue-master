@@ -1,9 +1,9 @@
-package com.benevenuto.queue_master.DTO.common;
+package com.benevenuto.queue_master.presentation.common.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public abstract class BaseOrderResponseDTO {
     private UUID id;
-    private String pwNumber;
+    private String workOrderNumber;
     private String operatorNumber;
     private OrderStatus status;
     private LocalDateTime createdAt;

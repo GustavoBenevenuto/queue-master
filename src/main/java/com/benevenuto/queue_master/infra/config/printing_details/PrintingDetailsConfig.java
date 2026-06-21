@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.infra.config.printing_datails;
+package com.benevenuto.queue_master.infra.config.printing_details;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

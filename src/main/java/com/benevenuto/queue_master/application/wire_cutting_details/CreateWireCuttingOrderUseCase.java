@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
 import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class CreateWireCuttingOrderUseCase {
             list.forEach(item -> {
                 wireRepository.save(WireCuttingDetails.builder()
                     .id(UUID.randomUUID())
-                    .pwNumber(item.getPwNumber())
+                    .workOrderNumber(item.getWorkOrderNumber())
                     .operatorNumber(item.getOperatorNumber())
                     .wireName(item.getWireName())
                     .quantity(item.getQuantity())

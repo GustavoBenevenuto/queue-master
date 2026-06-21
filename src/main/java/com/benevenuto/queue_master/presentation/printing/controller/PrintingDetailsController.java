@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.DTO.pritting_details.PrintingOrderRequestDTO;
+import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.presentation.printing.dto.PrintingOrderRequestDTO;
 import com.benevenuto.queue_master.application.printing_details.CreatePrintingOrderUseCase;
 import com.benevenuto.queue_master.application.printing_details.DeletePrintingOrderUseCase;
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersUseCase;
 import com.benevenuto.queue_master.application.printing_details.UpdatePrintingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.printing.websocket.PrintingQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

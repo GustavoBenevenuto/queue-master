@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.benevenuto.queue_master.application.user.CreateNewUserUseCase;
 import com.benevenuto.queue_master.domain.user.dto.UserDTO;
 import com.benevenuto.queue_master.domain.user.entity.User;
-import com.benevenuto.queue_master.infra.config.secutiry.TokenService;
+import com.benevenuto.queue_master.infra.config.security.TokenService;
 import com.benevenuto.queue_master.presentation.auth.dto.AuthDTO;
 import com.benevenuto.queue_master.presentation.auth.dto.LoginResponseDTO;
 import com.benevenuto.queue_master.presentation.auth.dto.RegisterRequestDTO;

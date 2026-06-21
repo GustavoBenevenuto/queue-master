@@ -1,6 +1,6 @@
 CREATE TABLE printing_details (
     id UUID PRIMARY KEY,
-    pw_number VARCHAR(50) NOT NULL,
+    work_order_number VARCHAR(50) NOT NULL,
     operator_number VARCHAR(50) NOT NULL,
     print_text TEXT NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
@@ -13,7 +13,7 @@ CREATE TABLE printing_details (
 
 CREATE TABLE wire_cutting_details (
     id UUID PRIMARY KEY,
-    pw_number VARCHAR(50) NOT NULL,
+    work_order_number VARCHAR(50) NOT NULL,
     operator_number VARCHAR(50) NOT NULL,
     wire_name VARCHAR(100) NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
@@ -27,7 +27,7 @@ CREATE TABLE wire_cutting_details (
 
 CREATE TABLE stock_withdrawal_details (
     id UUID PRIMARY KEY,
-    pw_number VARCHAR(50) NOT NULL,
+    work_order_number VARCHAR(50) NOT NULL,
     operator_number VARCHAR(50) NOT NULL,
     item_name VARCHAR(100) NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),

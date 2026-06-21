@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.domain.user.repositories;
+package com.benevenuto.queue_master.domain.user.repository;
 
 import java.util.Optional;
 import java.util.UUID;

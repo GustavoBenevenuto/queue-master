@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.benevenuto.queue_master.DTO.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.application.wire_cutting_details.CreateWireCuttingOrderUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.DeleteWireCuttingOrderUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.UpdateWireCuttingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.wire_cutting.websocket.WireCuttingQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

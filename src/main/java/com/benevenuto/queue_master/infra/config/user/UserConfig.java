@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.benevenuto.queue_master.application.user.CreateNewUserUseCase;
-import com.benevenuto.queue_master.domain.user.repositories.IUserRepository;
-import com.benevenuto.queue_master.infra.config.secutiry.UserSecurityService;
+import com.benevenuto.queue_master.domain.user.repository.IUserRepository;
+import com.benevenuto.queue_master.infra.config.security.UserSecurityService;
 
 @Configuration
 public class UserConfig {

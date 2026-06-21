@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 
 public interface IStockWithdrawalDetailsJpaRepository extends JpaRepository<StockWithdrawalDetails, UUID> {
 
@@ -16,7 +16,7 @@ public interface IStockWithdrawalDetailsJpaRepository extends JpaRepository<Stoc
     @Query("SELECT s FROM StockWithdrawalDetails s WHERE s.operatorNumber = :operatorNumber ORDER BY s.isUrgent DESC, s.createdAt DESC")
     List<StockWithdrawalDetails> findByOperatorNumberPrioritized(@Param("operatorNumber") String operatorNumber);
 
-    List<StockWithdrawalDetails> findByPwNumber(String pwNumber);
+    List<StockWithdrawalDetails> findByWorkOrderNumber(String workOrderNumber);
 
     long countByStatus(OrderStatus status);
 }

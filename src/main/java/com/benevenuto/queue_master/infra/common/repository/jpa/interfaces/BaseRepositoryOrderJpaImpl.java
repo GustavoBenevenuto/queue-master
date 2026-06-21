@@ -36,16 +36,16 @@ public abstract class BaseRepositoryOrderJpaImpl<T, ID, R extends JpaRepository<
         }
     }
 
-    public List<T> findByPwNumber(String pwNumber) {
+    public List<T> findByWorkOrderNumber(String workOrderNumber) {
         try {
             T probe = entityClass.getDeclaredConstructor().newInstance();
-            var field = entityClass.getDeclaredField("pwNumber");
+            var field = entityClass.getDeclaredField("workOrderNumber");
             field.setAccessible(true);
-            field.set(probe, pwNumber);
+            field.set(probe, workOrderNumber);
             
             return repository.findAll(Example.of(probe));
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar por pwNumber na base genérica", e);
+            throw new RuntimeException("Erro ao buscar por workOrderNumber na base genérica", e);
         }
     }
 }

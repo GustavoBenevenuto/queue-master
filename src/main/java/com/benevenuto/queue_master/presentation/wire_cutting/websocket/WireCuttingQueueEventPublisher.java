@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.interfaces.IQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

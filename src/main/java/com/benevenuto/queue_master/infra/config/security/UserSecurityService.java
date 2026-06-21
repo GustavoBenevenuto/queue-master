@@ -1,11 +1,11 @@
-package com.benevenuto.queue_master.infra.config.secutiry;
+package com.benevenuto.queue_master.infra.config.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.benevenuto.queue_master.domain.user.repositories.IUserRepository;
+import com.benevenuto.queue_master.domain.user.repository.IUserRepository;
 
 public class UserSecurityService implements UserDetailsService {
 

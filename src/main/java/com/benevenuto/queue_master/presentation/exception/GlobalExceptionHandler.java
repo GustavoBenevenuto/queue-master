@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.presentation.handleExceptions;
+package com.benevenuto.queue_master.presentation.exception;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.benevenuto.queue_master.presentation.handleExceptions.exceptions.GlobalException;
+import com.benevenuto.queue_master.presentation.exception.GlobalException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

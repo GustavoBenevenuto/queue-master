@@ -1,8 +1,8 @@
-package com.benevenuto.queue_master.DTO.wire_cutting_details;
+package com.benevenuto.queue_master.presentation.wire_cutting.dto;
 
 import java.math.BigDecimal;
 
-import com.benevenuto.queue_master.DTO.common.BaseOrderRequestDTO;
+import com.benevenuto.queue_master.presentation.common.dto.BaseOrderRequestDTO;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

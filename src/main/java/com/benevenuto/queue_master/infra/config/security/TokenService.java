@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.infra.config.secutiry;
+package com.benevenuto.queue_master.infra.config.security;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

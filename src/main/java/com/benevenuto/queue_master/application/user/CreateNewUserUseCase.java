@@ -9,7 +9,7 @@ import com.benevenuto.queue_master.domain.user.entity.User;
 import com.benevenuto.queue_master.domain.user.exceptions.UserAlredyExistsException;
 import com.benevenuto.queue_master.domain.user.exceptions.UserNotAuthenticated;
 import com.benevenuto.queue_master.domain.user.exceptions.UserWithoutRoleException;
-import com.benevenuto.queue_master.domain.user.repositories.IUserRepository;
+import com.benevenuto.queue_master.domain.user.repository.IUserRepository;
 
 public class CreateNewUserUseCase {
 

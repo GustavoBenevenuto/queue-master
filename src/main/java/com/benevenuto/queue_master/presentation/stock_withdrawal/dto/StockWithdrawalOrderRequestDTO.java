@@ -1,6 +1,6 @@
-package com.benevenuto.queue_master.DTO.stock_withdrawal_details;
+package com.benevenuto.queue_master.presentation.stock_withdrawal.dto;
 
-import com.benevenuto.queue_master.DTO.common.BaseOrderRequestDTO;
+import com.benevenuto.queue_master.presentation.common.dto.BaseOrderRequestDTO;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

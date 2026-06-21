@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.benevenuto.queue_master.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -32,8 +32,8 @@ public class WireCuttingDetails {
     @Id
     private UUID id;
 
-    @Column(name = "pw_number", nullable = false, length = 50)
-    private String pwNumber;
+    @Column(name = "work_order_number", nullable = false, length = 50)
+    private String workOrderNumber;
 
     @Column(name = "operator_number", nullable = false, length = 50)
     private String operatorNumber;

@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.presentation.handleExceptions.exceptions;
+package com.benevenuto.queue_master.presentation.exception;
 
 import org.springframework.http.HttpStatus;
 
