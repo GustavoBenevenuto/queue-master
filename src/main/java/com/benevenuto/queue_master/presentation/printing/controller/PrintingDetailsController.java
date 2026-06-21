@@ -22,8 +22,8 @@ import com.benevenuto.queue_master.application.printing_details.DeletePrintingOr
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersUseCase;
 import com.benevenuto.queue_master.application.printing_details.UpdatePrintingOrderStatusUseCase;
-import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.printing.websocket.PrintingQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

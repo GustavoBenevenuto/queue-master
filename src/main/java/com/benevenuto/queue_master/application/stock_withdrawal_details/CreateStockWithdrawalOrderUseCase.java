@@ -6,9 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
-import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.entity.StockWithdrawalDetails;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.repository.IStockWithdrawalDetailsRepository;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

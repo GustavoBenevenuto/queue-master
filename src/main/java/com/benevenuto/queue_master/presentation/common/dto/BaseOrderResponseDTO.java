@@ -3,7 +3,7 @@ package com.benevenuto.queue_master.presentation.common.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

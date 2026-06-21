@@ -2,8 +2,8 @@ package com.benevenuto.queue_master.application.stock_withdrawal_details;
 
 import java.util.List;
 
-import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
-import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.entity.StockWithdrawalDetails;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.repository.IStockWithdrawalDetailsRepository;
 
 import lombok.RequiredArgsConstructor;
 

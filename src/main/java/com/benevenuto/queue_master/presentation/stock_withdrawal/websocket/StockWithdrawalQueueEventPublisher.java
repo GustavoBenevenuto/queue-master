@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersUseCase;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.interfaces.IQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

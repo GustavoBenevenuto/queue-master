@@ -1,12 +1,12 @@
-package com.benevenuto.queue_master.infra.order_queue.repository.jpa.interfaces;
+package com.benevenuto.queue_master.infra.wire_cutting_details.repository.jpa.interfaces;
 
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.wire_cutting_details.entity.WireCuttingDetails;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 
 public interface IWireCuttingDetailsJpaRepository extends JpaRepository<WireCuttingDetails, UUID> {
 

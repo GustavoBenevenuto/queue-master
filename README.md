@@ -16,18 +16,23 @@ The project follows **Clean Architecture** and **SOLID** principles, being fully
 ```text
 src/main/java/com/benevenuto/queue_master/
 │
-├── application/             # Use Cases isolated by domain
-├── domain/                  # Business entities and core rules
-├── enums/                   # Global enums (OrderStatus, RequestType)
-├── infra/                   # Infrastructure configurations (Security, WebSockets)
+├── application/             # Use Cases isolated by domain (printing_details, stock_withdrawal_details, wire_cutting_details, user)
+├── domain/                  # Business entities, repositories and enums, isolated by subdomain
+│   ├── common/              # Shared contracts (IBaseRepository, IBaseRepositoryOrder, OrderStatus)
+│   ├── printing_details/    # Printing entity, repository and enums
+│   ├── stock_withdrawal_details/
+│   ├── wire_cutting_details/
+│   └── user/
+├── infra/                   # Infrastructure (Security, WebSocket config, JPA implementations) isolated by subdomain
 │
-└── presentation/            # Entry Layer (Controllers and Events)
-    ├── order_queue/         # REST Controllers organized by workstation
-    └── websocket/           # WebSocket messaging infrastructure
-        ├── interfaces/      # Contracts and abstractions (IQueueEventPublisher)
-        ├── printing/        # Real-time Printing events
-        ├── stock_withdrawal/# Real-time Stock Withdrawal events
-        └── wire_cutting/    # Real-time Wire Cutting events
+└── presentation/            # Entry Layer (Controllers, DTOs and Events)
+    ├── auth/                # Auth controller and DTOs
+    ├── common/dto/          # Shared DTOs (BaseOrderRequestDTO, OrderDataNotificationDTO)
+    ├── exception/           # Global exception handling
+    ├── interfaces/           # Contracts and abstractions (IQueueEventPublisher)
+    ├── printing/             # REST Controller, DTOs and WebSocket events for Printing
+    ├── stock_withdrawal/     # REST Controller and WebSocket events for Stock Withdrawal
+    └── wire_cutting/         # REST Controller, DTOs and WebSocket events for Wire Cutting
 ```
 
 ---
@@ -79,6 +84,223 @@ Filtered feeds that only deliver orders associated with the connected operator's
 * `/topic/stock-withdrawal/operator/{operatorNumber}`
 * `/topic/printing/operator/{operatorNumber}`
 * `/topic/wire-cutting/operator/{operatorNumber}`
+
+---
+
+## 📋 API Usage Examples
+
+> All endpoints (except `/auth/**`) require an `Authorization: Bearer <token>` header obtained from `/auth/login`. Replace `{{baseUrl}}` with `http://localhost:8080`.
+
+### Authentication
+
+#### Register a new user
+`POST {{baseUrl}}/auth/register`
+
+Request body:
+```json
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "operatorNumber": 1001,
+  "password": "S3cret!23",
+  "role": "OPERATOR"
+}
+```
+`role` accepts: `ADMIN`, `INVENTOR`, `OPERATOR`.
+
+Response `200 OK`:
+```json
+{
+  "id": "6f1a2e3c-4b5d-4e8f-9a0b-1c2d3e4f5a6b",
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "operatorNumber": 1001,
+  "role": "OPERATOR",
+  "active": true,
+  "lastLogin": null,
+  "createdAt": "21/06/2026 10:00:00",
+  "updatedAt": "21/06/2026 10:00:00"
+}
+```
+
+#### Login
+`POST {{baseUrl}}/auth/login`
+
+Request body:
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "S3cret!23"
+}
+```
+
+Response `200 OK`:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huLmRvZUBleGFtcGxlLmNvbSJ9.xxxxxxxxxxxxxxxx"
+}
+```
+
+---
+
+### Printing Orders (`/orders/printing`)
+
+#### Create order(s)
+`POST {{baseUrl}}/orders/printing?opNumber=1001`
+
+Request body (array of orders):
+```json
+[
+  {
+    "workOrderNumber": "WO-1001",
+    "operatorNumber": "1001",
+    "quantity": 50,
+    "isUrgent": false,
+    "reason": "Label reprint for batch 22",
+    "printText": "BATCH-22-LABEL"
+  }
+]
+```
+
+Response: `201 Created` (no body).
+
+#### List all orders
+`GET {{baseUrl}}/orders/printing`
+
+Response `200 OK`:
+```json
+[
+  {
+    "id": "a3b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d",
+    "workOrderNumber": "WO-1001",
+    "operatorNumber": "1001",
+    "printText": "BATCH-22-LABEL",
+    "quantity": 50,
+    "isUrgent": false,
+    "reason": "Label reprint for batch 22",
+    "status": "pending",
+    "createdAt": "21/06/2026 10:05:00",
+    "updatedAt": "21/06/2026 10:05:00"
+  }
+]
+```
+
+#### List orders by operator
+`GET {{baseUrl}}/orders/printing/operator/1001`
+
+Response: same shape as above, filtered by `operatorNumber`.
+
+#### Update order status
+`PATCH {{baseUrl}}/orders/printing/a3b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d/status?status=in_progress`
+
+`status` accepts: `pending`, `in_progress`, `finished`.
+
+Response: `204 No Content` (the status change is also broadcast over the `/topic/printing` and `/topic/printing/operator/{operatorNumber}` WebSocket topics).
+
+#### Delete order
+`DELETE {{baseUrl}}/orders/printing/a3b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d`
+
+Response: `204 No Content`.
+
+---
+
+### Stock Withdrawal Orders (`/orders/stock-withdrawal`)
+
+#### Create order(s)
+`POST {{baseUrl}}/orders/stock-withdrawal?opNumber=1001`
+
+Request body (array of orders):
+```json
+[
+  {
+    "workOrderNumber": "WO-2002",
+    "operatorNumber": "1001",
+    "itemName": "M6 Screw",
+    "quantity": 200,
+    "isUrgent": true,
+    "reason": "Line 3 replenishment"
+  }
+]
+```
+
+Response: `201 Created` (no body).
+
+#### List all / by operator
+`GET {{baseUrl}}/orders/stock-withdrawal`
+`GET {{baseUrl}}/orders/stock-withdrawal/operator/1001`
+
+Response `200 OK`:
+```json
+[
+  {
+    "id": "b4c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e",
+    "workOrderNumber": "WO-2002",
+    "operatorNumber": "1001",
+    "itemName": "M6 Screw",
+    "quantity": 200,
+    "isUrgent": true,
+    "reason": "Line 3 replenishment",
+    "status": "pending",
+    "createdAt": "21/06/2026 10:10:00",
+    "updatedAt": "21/06/2026 10:10:00"
+  }
+]
+```
+
+#### Update status / Delete
+`PATCH {{baseUrl}}/orders/stock-withdrawal/b4c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e/status?status=finished` → `204 No Content`
+`DELETE {{baseUrl}}/orders/stock-withdrawal/b4c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e` → `204 No Content`
+
+---
+
+### Wire Cutting Orders (`/orders/wire-cutting`)
+
+#### Create order(s)
+`POST {{baseUrl}}/orders/wire-cutting?opNumber=1001`
+
+Request body (array of orders):
+```json
+[
+  {
+    "workOrderNumber": "WO-3003",
+    "operatorNumber": "1001",
+    "wireName": "Copper 2.5mm",
+    "quantity": 10,
+    "isUrgent": false,
+    "lengthMm": 1500.00,
+    "reason": "Panel wiring batch"
+  }
+]
+```
+
+Response: `201 Created` (no body).
+
+#### List all / by operator
+`GET {{baseUrl}}/orders/wire-cutting`
+`GET {{baseUrl}}/orders/wire-cutting/operator/1001`
+
+Response `200 OK`:
+```json
+[
+  {
+    "id": "c5d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f",
+    "workOrderNumber": "WO-3003",
+    "operatorNumber": "1001",
+    "wireName": "Copper 2.5mm",
+    "quantity": 10,
+    "isUrgent": false,
+    "lengthMm": 1500.00,
+    "reason": "Panel wiring batch",
+    "status": "pending",
+    "createdAt": "21/06/2026 10:15:00",
+    "updatedAt": "21/06/2026 10:15:00"
+  }
+]
+```
+
+#### Update status / Delete
+`PATCH {{baseUrl}}/orders/wire-cutting/c5d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f/status?status=in_progress` → `204 No Content`
+`DELETE {{baseUrl}}/orders/wire-cutting/c5d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f` → `204 No Content`
 
 ---
 

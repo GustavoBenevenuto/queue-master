@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.domain.order_queue.enums;
+package com.benevenuto.queue_master.domain.printing_details.enums;
 
 public enum PrintIdentStatus {
     NOT_STARTED,

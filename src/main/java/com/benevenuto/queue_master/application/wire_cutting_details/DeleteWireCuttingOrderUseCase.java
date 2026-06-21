@@ -3,7 +3,7 @@ package com.benevenuto.queue_master.application.wire_cutting_details;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
+import com.benevenuto.queue_master.domain.wire_cutting_details.repository.IWireCuttingDetailsRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

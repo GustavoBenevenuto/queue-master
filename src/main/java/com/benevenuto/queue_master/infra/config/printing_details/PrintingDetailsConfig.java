@@ -8,7 +8,7 @@ import com.benevenuto.queue_master.application.printing_details.DeletePrintingOr
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersUseCase;
 import com.benevenuto.queue_master.application.printing_details.UpdatePrintingOrderStatusUseCase;
-import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
+import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
 
 @Configuration
 public class PrintingDetailsConfig {

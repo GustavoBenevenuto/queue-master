@@ -8,7 +8,7 @@ import com.benevenuto.queue_master.application.stock_withdrawal_details.DeleteSt
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.UpdateStockWithdrawalOrderStatusUseCase;
-import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.repository.IStockWithdrawalDetailsRepository;
 
 @Configuration
 public class StockWithdrawalDetailsConfig {

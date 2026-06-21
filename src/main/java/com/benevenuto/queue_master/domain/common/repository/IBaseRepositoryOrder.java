@@ -1,4 +1,4 @@
-package com.benevenuto.queue_master.domain.order_queue.repository;
+package com.benevenuto.queue_master.domain.common.repository;
 
 import java.util.List;
 

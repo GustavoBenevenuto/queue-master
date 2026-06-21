@@ -21,8 +21,8 @@ import com.benevenuto.queue_master.application.stock_withdrawal_details.DeleteSt
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.UpdateStockWithdrawalOrderStatusUseCase;
-import com.benevenuto.queue_master.domain.order_queue.entity.StockWithdrawalDetails;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.entity.StockWithdrawalDetails;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.stock_withdrawal.websocket.StockWithdrawalQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

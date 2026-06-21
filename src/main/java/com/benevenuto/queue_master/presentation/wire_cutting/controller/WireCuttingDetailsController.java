@@ -21,8 +21,8 @@ import com.benevenuto.queue_master.application.wire_cutting_details.DeleteWireCu
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.UpdateWireCuttingOrderStatusUseCase;
-import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.wire_cutting_details.entity.WireCuttingDetails;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.benevenuto.queue_master.presentation.wire_cutting.websocket.WireCuttingQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;

@@ -8,7 +8,7 @@ import com.benevenuto.queue_master.application.wire_cutting_details.DeleteWireCu
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
 import com.benevenuto.queue_master.application.wire_cutting_details.UpdateWireCuttingOrderStatusUseCase;
-import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
+import com.benevenuto.queue_master.domain.wire_cutting_details.repository.IWireCuttingDetailsRepository;
 
 @Configuration
 public class WireCuttingDetailsConfig {

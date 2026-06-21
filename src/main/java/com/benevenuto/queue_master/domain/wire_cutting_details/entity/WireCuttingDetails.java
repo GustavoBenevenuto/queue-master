@@ -1,12 +1,13 @@
-package com.benevenuto.queue_master.domain.order_queue.entity;
+package com.benevenuto.queue_master.domain.wire_cutting_details.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -21,12 +22,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "stock_withdrawal_details")
+@Table(name = "wire_cutting_details")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockWithdrawalDetails {
+public class WireCuttingDetails {
 
     @Id
     private UUID id;
@@ -37,14 +38,17 @@ public class StockWithdrawalDetails {
     @Column(name = "operator_number", nullable = false, length = 50)
     private String operatorNumber;
 
-    @Column(name = "item_name", nullable = false, length = 100)
-    private String itemName;
+    @Column(name = "wire_name", nullable = false, length = 100)
+    private String wireName;
 
     @Column(nullable = false)
     private Integer quantity;
 
     @Column(name = "is_urgent")
     private Boolean isUrgent = false;
+
+    @Column(name = "length_mm", nullable = false, precision = 10, scale = 2)
+    private BigDecimal lengthMm;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String reason;

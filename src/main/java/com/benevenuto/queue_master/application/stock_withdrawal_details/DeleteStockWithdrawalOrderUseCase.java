@@ -3,7 +3,7 @@ package com.benevenuto.queue_master.application.stock_withdrawal_details;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.domain.order_queue.repository.IStockWithdrawalDetailsRepository;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.repository.IStockWithdrawalDetailsRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

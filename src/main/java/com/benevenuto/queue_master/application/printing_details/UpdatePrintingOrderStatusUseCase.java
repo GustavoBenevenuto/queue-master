@@ -3,8 +3,8 @@ package com.benevenuto.queue_master.application.printing_details;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

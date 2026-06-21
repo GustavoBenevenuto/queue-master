@@ -7,9 +7,9 @@ import java.util.UUID;
 
 import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.presentation.printing.dto.PrintingOrderRequestDTO;
-import com.benevenuto.queue_master.domain.order_queue.entity.PrintingDetails;
-import com.benevenuto.queue_master.domain.order_queue.repository.IPrintingDetailsRepository;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
+import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

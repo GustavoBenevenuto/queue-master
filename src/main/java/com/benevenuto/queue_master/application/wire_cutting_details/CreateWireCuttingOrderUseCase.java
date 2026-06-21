@@ -6,9 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
-import com.benevenuto.queue_master.domain.order_queue.entity.WireCuttingDetails;
-import com.benevenuto.queue_master.domain.order_queue.repository.IWireCuttingDetailsRepository;
-import com.benevenuto.queue_master.domain.order_queue.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.wire_cutting_details.entity.WireCuttingDetails;
+import com.benevenuto.queue_master.domain.wire_cutting_details.repository.IWireCuttingDetailsRepository;
+import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
