@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.presentation.printing.dto.PrintingOrderRequestDTO;
 import com.benevenuto.queue_master.application.printing_details.CreatePrintingOrderUseCase;
 import com.benevenuto.queue_master.application.printing_details.DeletePrintingOrderUseCase;
@@ -24,6 +23,7 @@ import com.benevenuto.queue_master.application.printing_details.GetPrintingOrder
 import com.benevenuto.queue_master.application.printing_details.UpdatePrintingOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.QueueEventType;
 import com.benevenuto.queue_master.presentation.printing.websocket.PrintingQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
@@ -38,27 +38,25 @@ public class PrintingDetailsController {
     private final GetPrintingOrdersByOperatorUseCase getByOperatorUseCase;
     private final GetPrintingOrdersUseCase getPrintingOrdersUseCase;
     private final UpdatePrintingOrderStatusUseCase updateStatusUseCase;
-    private final PrintingQueueEventPublisher queueEventPublisher; // AJUSTADO: Publisher de Impressão
+    private final PrintingQueueEventPublisher queueEventPublisher;
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody List<PrintingOrderRequestDTO> dto, @RequestParam String opNumber) {
-        List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
+    public ResponseEntity<Void> create(@RequestBody List<PrintingOrderRequestDTO> dto) {
+        List<PrintingDetails> createdOrders = createUseCase.execute(dto);
 
-        // AJUSTADO: Chamada direta sem RequestType
-        createdOrders.stream()
-            .distinct()
-            .forEach(notification -> 
-                queueEventPublisher.publishQueueUpdate(notification.status(), opNumber)
-            );
+        // Cada ordem criada gera seu próprio evento de delta no WebSocket, com o objeto completo
+        createdOrders.forEach(order ->
+            queueEventPublisher.publishQueueUpdate(QueueEventType.ORDER_CREATED, order)
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    
+
     @GetMapping("/operator/{operatorNumber}")
     public ResponseEntity<List<PrintingDetails>> listByOperator(@PathVariable String operatorNumber) {
         return ResponseEntity.ok(getByOperatorUseCase.execute(operatorNumber));
     }
-    
+
     @GetMapping()
     public ResponseEntity<List<PrintingDetails>> listAll() {
         return ResponseEntity.ok(getPrintingOrdersUseCase.execute());
@@ -68,21 +66,19 @@ public class PrintingDetailsController {
     public ResponseEntity<Void> updateStatus(
             @PathVariable UUID id,
             @RequestParam OrderStatus status) {
-        
-        OrderDataNotificationDTO oldOrderData = updateStatusUseCase.execute(id, status);
 
-        // AJUSTADO: Chamada simplificada para o websocket específico
-        queueEventPublisher.publishQueueUpdate(status, oldOrderData.operatorNumber());
+        PrintingDetails updatedOrder = updateStatusUseCase.execute(id, status);
+
+        queueEventPublisher.publishQueueUpdate(QueueEventType.STATUS_CHANGED, updatedOrder);
 
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        OrderDataNotificationDTO deletedOrderData = deleteUseCase.execute(id);
+        PrintingDetails deletedOrder = deleteUseCase.execute(id);
 
-        // AJUSTADO: Chamada simplificada para o websocket específico
-        queueEventPublisher.publishQueueUpdate(deletedOrderData.status(), deletedOrderData.operatorNumber());
+        queueEventPublisher.publishQueueUpdate(QueueEventType.ORDER_DELETED, deletedOrder);
 
         return ResponseEntity.noContent().build();
     }

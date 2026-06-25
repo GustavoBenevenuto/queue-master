@@ -27,7 +27,7 @@ src/main/java/com/benevenuto/queue_master/
 │
 └── presentation/            # Entry Layer (Controllers, DTOs and Events)
     ├── auth/                # Auth controller and DTOs
-    ├── common/dto/          # Shared DTOs (BaseOrderRequestDTO, OrderDataNotificationDTO)
+    ├── common/dto/          # Shared DTOs (BaseOrderRequestDTO, QueueDeltaEventDTO)
     ├── exception/           # Global exception handling
     ├── interfaces/           # Contracts and abstractions (IQueueEventPublisher)
     ├── printing/             # REST Controller, DTOs and WebSocket events for Printing
@@ -79,18 +79,40 @@ The backend exposes a centralized endpoint using the STOMP protocol over WebSock
 The frontend can subscribe to two types of topics depending on the dashboard being rendered:
 
 #### 1. Global Dashboards (Factory Displays)
-Automatically fed by the `findAll()` method of each workstation whenever a write event occurs.
-
 * `/topic/stock-withdrawal`
 * `/topic/printing`
 * `/topic/wire-cutting`
 
 #### 2. Private Dashboards (Operator Feed)
-Filtered feeds that only deliver orders associated with the connected operator's unique identifier.
+Filtered feeds that only deliver events for orders associated with the connected operator's unique identifier — regardless of who performed the action (ADMIN/INVENTOR included).
 
 * `/topic/stock-withdrawal/operator/{operatorNumber}`
 * `/topic/printing/operator/{operatorNumber}`
 * `/topic/wire-cutting/operator/{operatorNumber}`
+
+### Delta-based payload (not a full list)
+
+To avoid flooding the database and the client with the entire queue on every change — critical once a table holds hundreds of thousands of rows — the socket **never re-sends the full list**. Every create, status update or delete publishes a delta event with the **complete affected order** under `data`:
+
+```json
+{
+  "type": "STATUS_CHANGED",
+  "data": {
+    "id": "a3b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d",
+    "workOrderNumber": "WO-1001",
+    "operatorNumber": "1003",
+    "printText": "BATCH-22-LABEL",
+    "quantity": 50,
+    "isUrgent": false,
+    "reason": "Label reprint for batch 22",
+    "status": "in_progress",
+    "createdAt": "21/06/2026 10:05:00",
+    "updatedAt": "21/06/2026 10:06:00"
+  }
+}
+```
+
+`type` is one of `ORDER_CREATED`, `STATUS_CHANGED`, `ORDER_DELETED`. `data` has the same shape as a single item from the REST list endpoints (it varies per queue: printing/stock-withdrawal/wire-cutting each have their own fields). The frontend reacts to the event by inserting/updating/removing the matching `data.id` locally — no re-fetch needed, even on creation, since the full object is already in the payload.
 
 ---
 
@@ -246,7 +268,7 @@ Response: `204 No Content`.
 ### Printing Orders (`/orders/printing`)
 
 #### Create order(s)
-`POST {{baseUrl}}/orders/printing?opNumber=1001`
+`POST {{baseUrl}}/orders/printing`
 
 Request body (array of orders):
 ```json
@@ -307,7 +329,7 @@ Response: `204 No Content`.
 ### Stock Withdrawal Orders (`/orders/stock-withdrawal`)
 
 #### Create order(s)
-`POST {{baseUrl}}/orders/stock-withdrawal?opNumber=1001`
+`POST {{baseUrl}}/orders/stock-withdrawal`
 
 Request body (array of orders):
 ```json
@@ -356,7 +378,7 @@ Response `200 OK`:
 ### Wire Cutting Orders (`/orders/wire-cutting`)
 
 #### Create order(s)
-`POST {{baseUrl}}/orders/wire-cutting?opNumber=1001`
+`POST {{baseUrl}}/orders/wire-cutting`
 
 Request body (array of orders):
 ```json

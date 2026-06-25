@@ -1,35 +1,32 @@
 package com.benevenuto.queue_master.presentation.wire_cutting.websocket;
 
-import java.util.List;
-
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersByOperatorUseCase;
-import com.benevenuto.queue_master.application.wire_cutting_details.GetWireCuttingOrdersUseCase;
-import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.QueueEventType;
+import com.benevenuto.queue_master.domain.wire_cutting_details.entity.WireCuttingDetails;
+import com.benevenuto.queue_master.presentation.common.dto.QueueDeltaEventDTO;
 import com.benevenuto.queue_master.presentation.interfaces.IQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class WireCuttingQueueEventPublisher implements IQueueEventPublisher {
+public class WireCuttingQueueEventPublisher implements IQueueEventPublisher<WireCuttingDetails> {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final GetWireCuttingOrdersUseCase getWireCuttingOrdersUseCase;
-    private final GetWireCuttingOrdersByOperatorUseCase getWireCuttingByOperatorUseCase;
 
     @Override
-    public void publishQueueUpdate(OrderStatus status, String operatorNumber) {
-        // 1. Atualiza a fila GERAL de corte de cabos
-        List<?> updatedGeneralQueue = getWireCuttingOrdersUseCase.execute();
-        messagingTemplate.convertAndSend("/topic/wire-cutting", updatedGeneralQueue);
+    public void publishQueueUpdate(QueueEventType type, WireCuttingDetails order) {
+        QueueDeltaEventDTO<WireCuttingDetails> event = new QueueDeltaEventDTO<>(type, order);
 
-        // 2. Atualiza a fila do OPERADOR específico para corte de cabos
+        // 1. Avisa o painel geral: o objeto completo do item alterado, nunca a fila inteira
+        messagingTemplate.convertAndSend("/topic/wire-cutting", event);
+
+        // 2. Avisa o feed privado do operador dono da ordem
+        String operatorNumber = order.getOperatorNumber();
         if (operatorNumber != null && !operatorNumber.isBlank()) {
-            List<?> updatedOperatorQueue = getWireCuttingByOperatorUseCase.execute(operatorNumber);
-            messagingTemplate.convertAndSend("/topic/wire-cutting/operator/" + operatorNumber, updatedOperatorQueue);
+            messagingTemplate.convertAndSend("/topic/wire-cutting/operator/" + operatorNumber, event);
         }
     }
 }

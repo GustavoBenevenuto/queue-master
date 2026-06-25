@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.presentation.printing.dto.PrintingOrderRequestDTO;
 import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
@@ -20,12 +19,12 @@ public class CreatePrintingOrderUseCase {
     private final IPrintingDetailsRepository printingRepository;
 
     @Transactional
-    public List<OrderDataNotificationDTO> execute(List<PrintingOrderRequestDTO> dto) {
-        List<OrderDataNotificationDTO> notifications = new ArrayList<>();
+    public List<PrintingDetails> execute(List<PrintingOrderRequestDTO> dto) {
+        List<PrintingDetails> createdOrders = new ArrayList<>();
 
-        Optional.ofNullable(dto).ifPresent(list -> 
+        Optional.ofNullable(dto).ifPresent(list ->
             list.forEach(item -> {
-                printingRepository.save(PrintingDetails.builder()
+                PrintingDetails order = PrintingDetails.builder()
                     .id(UUID.randomUUID())
                     .workOrderNumber(item.getWorkOrderNumber())
                     .operatorNumber(item.getOperatorNumber())
@@ -34,14 +33,12 @@ public class CreatePrintingOrderUseCase {
                     .isUrgent(item.getIsUrgent())
                     .reason(item.getReason())
                     .status(OrderStatus.pending)
-                    .build());
-                
-                notifications.add(new OrderDataNotificationDTO(
-                    OrderStatus.pending, 
-                    item.getOperatorNumber()
-                ));
+                    .build();
+
+                printingRepository.save(order);
+                createdOrders.add(order);
             }));
 
-        return notifications;
+        return createdOrders;
     }
 }

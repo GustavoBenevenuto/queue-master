@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.wire_cutting_details.entity.WireCuttingDetails;
 import com.benevenuto.queue_master.domain.wire_cutting_details.repository.IWireCuttingDetailsRepository;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
@@ -19,12 +18,12 @@ public class CreateWireCuttingOrderUseCase {
     private final IWireCuttingDetailsRepository wireRepository;
 
     @Transactional
-    public List<OrderDataNotificationDTO> execute(List<WireCuttingDetails> dto) {
-        List<OrderDataNotificationDTO> notifications = new ArrayList<>();
+    public List<WireCuttingDetails> execute(List<WireCuttingDetails> dto) {
+        List<WireCuttingDetails> createdOrders = new ArrayList<>();
 
-        Optional.ofNullable(dto).ifPresent(list -> 
+        Optional.ofNullable(dto).ifPresent(list ->
             list.forEach(item -> {
-                wireRepository.save(WireCuttingDetails.builder()
+                WireCuttingDetails order = WireCuttingDetails.builder()
                     .id(UUID.randomUUID())
                     .workOrderNumber(item.getWorkOrderNumber())
                     .operatorNumber(item.getOperatorNumber())
@@ -34,14 +33,12 @@ public class CreateWireCuttingOrderUseCase {
                     .lengthMm(item.getLengthMm())
                     .reason(item.getReason())
                     .status(OrderStatus.pending)
-                    .build());
-                
-                notifications.add(new OrderDataNotificationDTO(
-                    OrderStatus.pending, 
-                    item.getOperatorNumber()
-                ));
+                    .build();
+
+                wireRepository.save(order);
+                createdOrders.add(order);
             }));
 
-        return notifications;
+        return createdOrders;
     }
 }

@@ -2,7 +2,7 @@ package com.benevenuto.queue_master.application.printing_details;
 
 import java.util.UUID;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 
@@ -12,20 +12,15 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class UpdatePrintingOrderStatusUseCase {
-    
+
     private final IPrintingDetailsRepository printingRepository;
 
     @Transactional
-    public OrderDataNotificationDTO execute(UUID id, OrderStatus newStatus) {
+    public PrintingDetails execute(UUID id, OrderStatus newStatus) {
         return printingRepository.findById(id)
             .map(entity -> {
-                OrderStatus oldStatus = entity.getStatus();
                 entity.setStatus(newStatus);
-                printingRepository.save(entity);
-                return new OrderDataNotificationDTO(
-                    oldStatus, 
-                    entity.getOperatorNumber()
-                );
+                return printingRepository.save(entity);
             })
             .orElseThrow(() -> new EntityNotFoundException("Printing order with ID " + id + " not found."));
     }

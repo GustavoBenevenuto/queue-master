@@ -2,7 +2,7 @@ package com.benevenuto.queue_master.application.wire_cutting_details;
 
 import java.util.UUID;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.domain.wire_cutting_details.entity.WireCuttingDetails;
 import com.benevenuto.queue_master.domain.wire_cutting_details.repository.IWireCuttingDetailsRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -13,16 +13,13 @@ import lombok.RequiredArgsConstructor;
 public class DeleteWireCuttingOrderUseCase {
 
     private final IWireCuttingDetailsRepository wireRepository;
-    
+
     @Transactional
-    public OrderDataNotificationDTO execute(UUID id) {
+    public WireCuttingDetails execute(UUID id) {
         return wireRepository.findById(id)
             .map(entity -> {
                 wireRepository.deleteById(id);
-                return new OrderDataNotificationDTO(
-                    entity.getStatus(), 
-                    entity.getOperatorNumber()
-                );
+                return entity;
             })
             .orElseThrow(() -> new EntityNotFoundException("Wire cutting order with ID " + id + " not found."));
     }

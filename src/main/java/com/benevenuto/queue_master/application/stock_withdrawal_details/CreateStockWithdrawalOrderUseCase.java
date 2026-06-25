@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.domain.stock_withdrawal_details.entity.StockWithdrawalDetails;
 import com.benevenuto.queue_master.domain.stock_withdrawal_details.repository.IStockWithdrawalDetailsRepository;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
@@ -19,12 +18,12 @@ public class CreateStockWithdrawalOrderUseCase {
     private final IStockWithdrawalDetailsRepository stockRepository;
 
     @Transactional
-    public List<OrderDataNotificationDTO> execute(List<StockWithdrawalDetails> dto) {
-        List<OrderDataNotificationDTO> notifications = new ArrayList<>();
+    public List<StockWithdrawalDetails> execute(List<StockWithdrawalDetails> dto) {
+        List<StockWithdrawalDetails> createdOrders = new ArrayList<>();
 
-        Optional.ofNullable(dto).ifPresent(list -> 
+        Optional.ofNullable(dto).ifPresent(list ->
             list.forEach(item -> {
-                stockRepository.save(StockWithdrawalDetails.builder()
+                StockWithdrawalDetails order = StockWithdrawalDetails.builder()
                     .id(UUID.randomUUID())
                     .workOrderNumber(item.getWorkOrderNumber())
                     .operatorNumber(item.getOperatorNumber())
@@ -33,14 +32,12 @@ public class CreateStockWithdrawalOrderUseCase {
                     .isUrgent(item.getIsUrgent())
                     .reason(item.getReason())
                     .status(OrderStatus.pending)
-                    .build());
-                
-                notifications.add(new OrderDataNotificationDTO(
-                    OrderStatus.pending, 
-                    item.getOperatorNumber()
-                ));
+                    .build();
+
+                stockRepository.save(order);
+                createdOrders.add(order);
             }));
 
-        return notifications;
+        return createdOrders;
     }
 }

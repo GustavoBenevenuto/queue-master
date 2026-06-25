@@ -2,7 +2,7 @@ package com.benevenuto.queue_master.application.printing_details;
 
 import java.util.UUID;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
+import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -13,16 +13,13 @@ import lombok.RequiredArgsConstructor;
 public class DeletePrintingOrderUseCase {
 
     private final IPrintingDetailsRepository printingRepository;
-    
+
     @Transactional
-    public OrderDataNotificationDTO execute(UUID id) {
+    public PrintingDetails execute(UUID id) {
         return printingRepository.findById(id)
             .map(entity -> {
                 printingRepository.deleteById(id);
-                return new OrderDataNotificationDTO(
-                    entity.getStatus(), 
-                    entity.getOperatorNumber()
-                );
+                return entity;
             })
             .orElseThrow(() -> new EntityNotFoundException("Printing order with ID " + id + " not found."));
     }

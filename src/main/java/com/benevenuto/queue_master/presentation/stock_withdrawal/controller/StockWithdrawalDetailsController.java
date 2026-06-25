@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.CreateStockWithdrawalOrderUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.DeleteStockWithdrawalOrderUseCase;
 import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
@@ -23,6 +22,7 @@ import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStock
 import com.benevenuto.queue_master.application.stock_withdrawal_details.UpdateStockWithdrawalOrderStatusUseCase;
 import com.benevenuto.queue_master.domain.stock_withdrawal_details.entity.StockWithdrawalDetails;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.QueueEventType;
 import com.benevenuto.queue_master.presentation.stock_withdrawal.websocket.StockWithdrawalQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
@@ -37,27 +37,25 @@ public class StockWithdrawalDetailsController {
     private final GetStockWithdrawalOrdersByOperatorUseCase getByOperatorUseCase;
     private final GetStockWithdrawalOrdersUseCase getStockWithdrawalOrdersUseCase;
     private final UpdateStockWithdrawalOrderStatusUseCase updateStatusUseCase;
-    private final StockWithdrawalQueueEventPublisher queueEventPublisher; // AJUSTADO: Publisher de Estoque
+    private final StockWithdrawalQueueEventPublisher queueEventPublisher;
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody List<StockWithdrawalDetails> dto, @RequestParam String opNumber) {
-        List<OrderDataNotificationDTO> createdOrders = createUseCase.execute(dto);
+    public ResponseEntity<Void> create(@RequestBody List<StockWithdrawalDetails> dto) {
+        List<StockWithdrawalDetails> createdOrders = createUseCase.execute(dto);
 
-        // AJUSTADO: Chamada direta sem RequestType
-        createdOrders.stream()
-            .distinct()
-            .forEach(notification -> 
-                queueEventPublisher.publishQueueUpdate(notification.status(), opNumber)
-            );
+        // Cada ordem criada gera seu próprio evento de delta no WebSocket, com o objeto completo
+        createdOrders.forEach(order ->
+            queueEventPublisher.publishQueueUpdate(QueueEventType.ORDER_CREATED, order)
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    
+
     @GetMapping("/operator/{operatorNumber}")
     public ResponseEntity<List<StockWithdrawalDetails>> listByOperator(@PathVariable String operatorNumber) {
         return ResponseEntity.ok(getByOperatorUseCase.execute(operatorNumber));
     }
-    
+
     @GetMapping()
     public ResponseEntity<List<StockWithdrawalDetails>> listAll() {
         return ResponseEntity.ok(getStockWithdrawalOrdersUseCase.execute());
@@ -67,21 +65,19 @@ public class StockWithdrawalDetailsController {
     public ResponseEntity<Void> updateStatus(
             @PathVariable UUID id,
             @RequestParam OrderStatus status) {
-        
-        OrderDataNotificationDTO oldOrderData = updateStatusUseCase.execute(id, status);
 
-        // AJUSTADO: Chamada simplificada para o websocket específico
-        queueEventPublisher.publishQueueUpdate(status, oldOrderData.operatorNumber());
+        StockWithdrawalDetails updatedOrder = updateStatusUseCase.execute(id, status);
+
+        queueEventPublisher.publishQueueUpdate(QueueEventType.STATUS_CHANGED, updatedOrder);
 
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        OrderDataNotificationDTO deletedOrderData = deleteUseCase.execute(id);
+        StockWithdrawalDetails deletedOrder = deleteUseCase.execute(id);
 
-        // AJUSTADO: Chamada simplificada para o websocket específico
-        queueEventPublisher.publishQueueUpdate(deletedOrderData.status(), deletedOrderData.operatorNumber());
+        queueEventPublisher.publishQueueUpdate(QueueEventType.ORDER_DELETED, deletedOrder);
 
         return ResponseEntity.noContent().build();
     }

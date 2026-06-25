@@ -27,7 +27,7 @@ src/main/java/com/benevenuto/queue_master/
 │
 └── presentation/            # Camada de Entrada (Controladores, DTOs e Eventos)
     ├── auth/                # Controller e DTOs de autenticação
-    ├── common/dto/          # DTOs compartilhados (BaseOrderRequestDTO, OrderDataNotificationDTO)
+    ├── common/dto/          # DTOs compartilhados (BaseOrderRequestDTO, QueueDeltaEventDTO)
     ├── exception/           # Tratamento global de exceções
     ├── interfaces/           # Contratos e abstrações (IQueueEventPublisher)
     ├── printing/             # Controller REST, DTOs e eventos WebSocket da Impressão
@@ -77,16 +77,39 @@ O backend expõe um endpoint centralizado utilizando o protocolo STOMP sobre Web
 O frontend pode assinar dois tipos de tópicos dependendo do painel visual que está renderizando:
 
 #### 1. Painéis Globais (Telões da Fábrica)
-Alimentados automaticamente pelo método `findAll()` de cada estação sempre que ocorre um evento de escrita.
 * `/topic/stock-withdrawal`
 * `/topic/printing`
 * `/topic/wire-cutting`
 
 #### 2. Painéis Privados (Feed de cada Operador)
-Alimentados de forma filtrada passando apenas as ordens vinculadas ao identificador único do operador conectado.
+Feed filtrado que só recebe eventos das ordens vinculadas ao identificador único do operador conectado — independente de quem executou a ação (incluindo ADMIN/INVENTOR).
 * `/topic/stock-withdrawal/operator/{operatorNumber}`
 * `/topic/printing/operator/{operatorNumber}`
 * `/topic/wire-cutting/operator/{operatorNumber}`
+
+### Payload em formato delta (não é a lista inteira)
+
+Para não sobrecarregar o banco e o cliente reenviando a fila inteira a cada mudança — crítico quando a tabela tem centenas de milhares de registros — o socket **nunca reenvia a lista completa**. Toda criação, mudança de status ou exclusão publica um evento de delta com o **objeto completo da ordem afetada** em `data`:
+
+```json
+{
+  "type": "STATUS_CHANGED",
+  "data": {
+    "id": "a3b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d",
+    "workOrderNumber": "WO-1001",
+    "operatorNumber": "1003",
+    "printText": "BATCH-22-LABEL",
+    "quantity": 50,
+    "isUrgent": false,
+    "reason": "Reimpressão de etiqueta do lote 22",
+    "status": "in_progress",
+    "createdAt": "21/06/2026 10:05:00",
+    "updatedAt": "21/06/2026 10:06:00"
+  }
+}
+```
+
+`type` pode ser `ORDER_CREATED`, `STATUS_CHANGED` ou `ORDER_DELETED`. `data` tem o mesmo formato de um item retornado pelos endpoints REST de listagem (varia por fila: printing/stock-withdrawal/wire-cutting têm campos próprios). O frontend reage ao evento inserindo/atualizando/removendo localmente o `data.id` correspondente — sem precisar buscar nada de novo, mesmo na criação, já que o objeto completo já vem no payload.
 
 ---
 
@@ -242,7 +265,7 @@ Resposta: `204 No Content`.
 ### Ordens de Impressão (`/orders/printing`)
 
 #### Criar ordem(ns)
-`POST {{baseUrl}}/orders/printing?opNumber=1001`
+`POST {{baseUrl}}/orders/printing`
 
 Corpo da requisição (array de ordens):
 ```json
@@ -303,7 +326,7 @@ Resposta: `204 No Content`.
 ### Ordens de Retirada de Estoque (`/orders/stock-withdrawal`)
 
 #### Criar ordem(ns)
-`POST {{baseUrl}}/orders/stock-withdrawal?opNumber=1001`
+`POST {{baseUrl}}/orders/stock-withdrawal`
 
 Corpo da requisição (array de ordens):
 ```json
@@ -352,7 +375,7 @@ Resposta `200 OK`:
 ### Ordens de Corte de Cabos (`/orders/wire-cutting`)
 
 #### Criar ordem(ns)
-`POST {{baseUrl}}/orders/wire-cutting?opNumber=1001`
+`POST {{baseUrl}}/orders/wire-cutting`
 
 Corpo da requisição (array de ordens):
 ```json

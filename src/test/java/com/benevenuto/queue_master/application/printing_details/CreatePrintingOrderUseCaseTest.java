@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 import com.benevenuto.queue_master.presentation.printing.dto.PrintingOrderRequestDTO;
 
 class CreatePrintingOrderUseCaseTest {
@@ -42,11 +41,14 @@ class CreatePrintingOrderUseCaseTest {
                 .workOrderNumber("WO-2").operatorNumber("1002").quantity(5)
                 .isUrgent(true).reason("reason 2").printText("text 2").build();
 
-        List<OrderDataNotificationDTO> notifications = useCase.execute(List.of(item1, item2));
+        List<PrintingDetails> createdOrders = useCase.execute(List.of(item1, item2));
 
-        assertThat(notifications).hasSize(2);
-        assertThat(notifications).allSatisfy(n -> assertThat(n.status()).isEqualTo(OrderStatus.pending));
-        assertThat(notifications).extracting(OrderDataNotificationDTO::operatorNumber)
+        assertThat(createdOrders).hasSize(2);
+        assertThat(createdOrders).allSatisfy(order -> {
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.pending);
+            assertThat(order.getId()).isNotNull();
+        });
+        assertThat(createdOrders).extracting(PrintingDetails::getOperatorNumber)
                 .containsExactly("1001", "1002");
 
         ArgumentCaptor<PrintingDetails> captor = ArgumentCaptor.forClass(PrintingDetails.class);
@@ -60,17 +62,17 @@ class CreatePrintingOrderUseCaseTest {
 
     @Test
     void shouldNotSaveAnythingWhenRequestListIsEmpty() {
-        List<OrderDataNotificationDTO> notifications = useCase.execute(List.of());
+        List<PrintingDetails> createdOrders = useCase.execute(List.of());
 
-        assertThat(notifications).isEmpty();
+        assertThat(createdOrders).isEmpty();
         verify(printingRepository, never()).save(any());
     }
 
     @Test
     void shouldNotSaveAnythingWhenRequestListIsNull() {
-        List<OrderDataNotificationDTO> notifications = useCase.execute(null);
+        List<PrintingDetails> createdOrders = useCase.execute(null);
 
-        assertThat(notifications).isEmpty();
+        assertThat(createdOrders).isEmpty();
         verify(printingRepository, never()).save(any());
     }
 }

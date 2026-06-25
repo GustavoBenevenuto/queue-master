@@ -1,35 +1,32 @@
 package com.benevenuto.queue_master.presentation.printing.websocket;
 
-import java.util.List;
-
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersByOperatorUseCase;
-import com.benevenuto.queue_master.application.printing_details.GetPrintingOrdersUseCase;
-import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.QueueEventType;
+import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
+import com.benevenuto.queue_master.presentation.common.dto.QueueDeltaEventDTO;
 import com.benevenuto.queue_master.presentation.interfaces.IQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class PrintingQueueEventPublisher implements IQueueEventPublisher {
+public class PrintingQueueEventPublisher implements IQueueEventPublisher<PrintingDetails> {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final GetPrintingOrdersUseCase getPrintingOrdersUseCase;
-    private final GetPrintingOrdersByOperatorUseCase getPrintingByOperatorUseCase;
 
     @Override
-    public void publishQueueUpdate(OrderStatus status, String operatorNumber) {
-        // 1. Atualiza a fila GERAL de impressão
-        List<?> updatedGeneralQueue = getPrintingOrdersUseCase.execute();
-        messagingTemplate.convertAndSend("/topic/printing", updatedGeneralQueue);
+    public void publishQueueUpdate(QueueEventType type, PrintingDetails order) {
+        QueueDeltaEventDTO<PrintingDetails> event = new QueueDeltaEventDTO<>(type, order);
 
-        // 2. Atualiza a fila do OPERADOR específico para impressão
+        // 1. Avisa o painel geral: o objeto completo do item alterado, nunca a fila inteira
+        messagingTemplate.convertAndSend("/topic/printing", event);
+
+        // 2. Avisa o feed privado do operador dono da ordem
+        String operatorNumber = order.getOperatorNumber();
         if (operatorNumber != null && !operatorNumber.isBlank()) {
-            List<?> updatedOperatorQueue = getPrintingByOperatorUseCase.execute(operatorNumber);
-            messagingTemplate.convertAndSend("/topic/printing/operator/" + operatorNumber, updatedOperatorQueue);
+            messagingTemplate.convertAndSend("/topic/printing/operator/" + operatorNumber, event);
         }
     }
 }

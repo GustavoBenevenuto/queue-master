@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.benevenuto.queue_master.domain.common.HasOperatorNumber;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WireCuttingDetails {
+public class WireCuttingDetails implements HasOperatorNumber {
 
     @Id
     private UUID id;

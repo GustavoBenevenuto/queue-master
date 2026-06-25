@@ -16,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -43,7 +42,7 @@ class DeletePrintingOrderUseCaseTest {
     }
 
     @Test
-    void shouldDeleteAndReturnTheOrderOwnerOperatorNumber() {
+    void shouldDeleteAndReturnTheFullDeletedOrder() {
         UUID id = UUID.randomUUID();
         PrintingDetails order = PrintingDetails.builder()
                 .id(id).workOrderNumber("WO-1").operatorNumber("1003")
@@ -52,10 +51,11 @@ class DeletePrintingOrderUseCaseTest {
                 .build();
         when(printingRepository.findById(id)).thenReturn(Optional.of(order));
 
-        OrderDataNotificationDTO result = useCase.execute(id);
+        PrintingDetails result = useCase.execute(id);
 
-        assertThat(result.status()).isEqualTo(OrderStatus.finished);
-        assertThat(result.operatorNumber()).isEqualTo("1003");
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.finished);
+        assertThat(result.getOperatorNumber()).isEqualTo("1003");
+        assertThat(result.getId()).isEqualTo(id);
         verify(printingRepository).deleteById(id);
     }
 }

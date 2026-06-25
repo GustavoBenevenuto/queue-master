@@ -2,7 +2,6 @@ package com.benevenuto.queue_master.application.printing_details;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
 import com.benevenuto.queue_master.domain.printing_details.entity.PrintingDetails;
 import com.benevenuto.queue_master.domain.printing_details.repository.IPrintingDetailsRepository;
-import com.benevenuto.queue_master.presentation.common.dto.OrderDataNotificationDTO;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -44,7 +42,7 @@ class UpdatePrintingOrderStatusUseCaseTest {
     }
 
     @Test
-    void shouldUpdateStatusAndReturnTheOrderOwnerOperatorNumber() {
+    void shouldUpdateStatusAndReturnTheFullUpdatedOrder() {
         UUID id = UUID.randomUUID();
         PrintingDetails order = PrintingDetails.builder()
                 .id(id).workOrderNumber("WO-1").operatorNumber("1003")
@@ -52,14 +50,16 @@ class UpdatePrintingOrderStatusUseCaseTest {
                 .status(OrderStatus.pending)
                 .build();
         when(printingRepository.findById(id)).thenReturn(Optional.of(order));
+        when(printingRepository.save(order)).thenReturn(order);
 
-        OrderDataNotificationDTO result = useCase.execute(id, OrderStatus.in_progress);
+        PrintingDetails result = useCase.execute(id, OrderStatus.in_progress);
 
-        // The DTO returned carries the OLD status (useful to know the transition) and the
-        // order's own operatorNumber - it must not depend on who performed the request.
-        assertThat(result.status()).isEqualTo(OrderStatus.pending);
-        assertThat(result.operatorNumber()).isEqualTo("1003");
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.in_progress);
+        // The use case returns the full entity already updated - the publisher relies on this
+        // to broadcast the complete object (not just id/status) and on getOperatorNumber() to
+        // route to the order's own operator topic, regardless of who performed the request.
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.in_progress);
+        assertThat(result.getOperatorNumber()).isEqualTo("1003");
+        assertThat(result.getId()).isEqualTo(id);
 
         verify(printingRepository).save(order);
     }

@@ -1,35 +1,32 @@
 package com.benevenuto.queue_master.presentation.stock_withdrawal.websocket;
 
-import java.util.List;
-
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersByOperatorUseCase;
-import com.benevenuto.queue_master.application.stock_withdrawal_details.GetStockWithdrawalOrdersUseCase;
-import com.benevenuto.queue_master.domain.common.enums.OrderStatus;
+import com.benevenuto.queue_master.domain.common.enums.QueueEventType;
+import com.benevenuto.queue_master.domain.stock_withdrawal_details.entity.StockWithdrawalDetails;
+import com.benevenuto.queue_master.presentation.common.dto.QueueDeltaEventDTO;
 import com.benevenuto.queue_master.presentation.interfaces.IQueueEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class StockWithdrawalQueueEventPublisher implements IQueueEventPublisher {
+public class StockWithdrawalQueueEventPublisher implements IQueueEventPublisher<StockWithdrawalDetails> {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final GetStockWithdrawalOrdersUseCase getStockWithdrawalOrdersUseCase;
-    private final GetStockWithdrawalOrdersByOperatorUseCase getStockWithdrawalByOperatorUseCase;
 
     @Override
-    public void publishQueueUpdate(OrderStatus status, String operatorNumber) {
-        // 1. Atualiza a fila GERAL de estoque
-        List<?> updatedGeneralQueue = getStockWithdrawalOrdersUseCase.execute();
-        messagingTemplate.convertAndSend("/topic/stock-withdrawal", updatedGeneralQueue);
+    public void publishQueueUpdate(QueueEventType type, StockWithdrawalDetails order) {
+        QueueDeltaEventDTO<StockWithdrawalDetails> event = new QueueDeltaEventDTO<>(type, order);
 
-        // 2. Atualiza a fila do OPERADOR específico para estoque
+        // 1. Avisa o painel geral: o objeto completo do item alterado, nunca a fila inteira
+        messagingTemplate.convertAndSend("/topic/stock-withdrawal", event);
+
+        // 2. Avisa o feed privado do operador dono da ordem
+        String operatorNumber = order.getOperatorNumber();
         if (operatorNumber != null && !operatorNumber.isBlank()) {
-            List<?> updatedOperatorQueue = getStockWithdrawalByOperatorUseCase.execute(operatorNumber);
-            messagingTemplate.convertAndSend("/topic/stock-withdrawal/operator/" + operatorNumber, updatedOperatorQueue);
+            messagingTemplate.convertAndSend("/topic/stock-withdrawal/operator/" + operatorNumber, event);
         }
     }
 }
